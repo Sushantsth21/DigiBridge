@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ValleyCare Patient Portal — Secure Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 13px;
+      background: #c8d8e8;
+      color: #111;
+    }
+
+    /* ── Top banner ── */
+    .top-bar {
+      background: #003366;
+      color: #fff;
+      padding: 3px 10px;
+      font-size: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .top-bar a { color: #aac8e8; text-decoration: underline; }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(to bottom, #1a5276, #2874a6);
+      padding: 0;
+      border-bottom: 3px solid #f39c12;
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      gap: 12px;
+    }
+    .logo-box {
+      background: #fff;
+      padding: 6px 10px;
+      border: 2px solid #f39c12;
+    }
+    .logo-box span {
+      font-size: 22px;
+      font-weight: bold;
+      color: #003366;
+      font-family: Arial, sans-serif;
+      letter-spacing: -1px;
+    }
+    .logo-box small { display: block; font-size: 8px; color: #666; font-family: Arial; }
+    .header-title { color: #fff; }
+    .header-title h1 { font-size: 16px; font-weight: bold; font-family: Arial; }
+    .header-title p { font-size: 10px; color: #acd; }
+
+    /* ── Nav bar ── */
+    .nav {
+      background: #2c3e50;
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid #f39c12;
+      overflow-x: auto;
+    }
+    .nav a {
+      color: #ccc;
+      text-decoration: none;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-family: Arial;
+      white-space: nowrap;
+      border-right: 1px solid #444;
+    }
+    .nav a:hover { background: #1a252f; color: #fff; }
+    .nav a.active { background: #f39c12; color: #000; font-weight: bold; }
+
+    /* ── Layout ── */
+    .layout {
+      display: flex;
+      gap: 0;
+      min-height: calc(100vh - 120px);
+    }
+    .sidebar {
+      width: 170px;
+      min-width: 170px;
+      background: #dce8f0;
+      border-right: 1px solid #aaa;
+      padding: 0;
+    }
+    .sidebar-section { border-bottom: 1px solid #aaa; }
+    .sidebar-section h3 {
+      background: #2874a6;
+      color: #fff;
+      font-size: 11px;
+      font-family: Arial;
+      padding: 5px 8px;
+      font-weight: bold;
+    }
+    .sidebar-section a {
+      display: block;
+      padding: 4px 10px 4px 16px;
+      font-size: 11px;
+      color: #003366;
+      text-decoration: none;
+      border-bottom: 1px dotted #bbb;
+    }
+    .sidebar-section a:hover { background: #c8d8e8; text-decoration: underline; }
+    .sidebar-section a.active { background: #fff; font-weight: bold; color: #c0392b; }
+
+    .main { flex: 1; padding: 10px; }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb {
+      font-size: 10px;
+      color: #555;
+      margin-bottom: 8px;
+      font-family: Arial;
+    }
+    .breadcrumb a { color: #2874a6; }
+
+    /* ── Section boxes ── */
+    .box {
+      background: #fff;
+      border: 1px solid #aaa;
+      margin-bottom: 10px;
+    }
+    .box-title {
+      background: linear-gradient(to bottom, #2874a6, #1a5276);
+      color: #fff;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-family: Arial;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .box-body { padding: 10px; }
+
+    /* ── Login panel ── */
+    #login-panel { display: block; }
+    #portal-panel { display: none; }
+
+    .login-notice {
+      background: #fef9e7;
+      border: 1px solid #f39c12;
+      padding: 8px 10px;
+      font-size: 11px;
+      margin-bottom: 10px;
+      font-family: Arial;
+    }
+    .login-notice strong { color: #c0392b; }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 6px;
+    }
+    .form-row label {
+      width: 140px;
+      min-width: 140px;
+      font-size: 11px;
+      font-family: Arial;
+      color: #333;
+    }
+    .form-row label .req { color: #c0392b; }
+    .form-row input, .form-row select {
+      border: 1px solid #888;
+      padding: 3px 5px;
+      font-size: 12px;
+      font-family: Arial;
+      width: 200px;
+    }
+    .form-row input:focus { outline: 2px solid #2874a6; }
+
+    .btn {
+      background: linear-gradient(to bottom, #2874a6, #1a5276);
+      color: #fff;
+      border: 1px solid #003366;
+      padding: 4px 18px;
+      font-size: 12px;
+      font-family: Arial;
+      cursor: pointer;
+    }
+    .btn:hover { background: linear-gradient(to bottom, #1a5276, #003366); }
+    .btn-orange {
+      background: linear-gradient(to bottom, #e67e22, #ca6f1e);
+      border-color: #a04000;
+    }
+    .btn-orange:hover { background: linear-gradient(to bottom, #ca6f1e, #a04000); }
+    .btn-green {
+      background: linear-gradient(to bottom, #27ae60, #1e8449);
+      border-color: #145a32;
+    }
+    .btn-row { display: flex; gap: 6px; align-items: center; margin-top: 10px; }
+
+    /* ── Portal form ── */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid #2874a6;
+      margin-bottom: 10px;
+    }
+    .tab {
+      padding: 5px 14px;
+      font-size: 11px;
+      font-family: Arial;
+      background: #dce8f0;
+      border: 1px solid #aaa;
+      border-bottom: none;
+      cursor: pointer;
+      color: #333;
+      margin-right: 2px;
+    }
+    .tab.active { background: #fff; border-bottom: 2px solid #fff; margin-bottom: -2px; font-weight: bold; color: #003366; }
+
+    .appt-form { font-family: Arial; }
+    .appt-form h3 { font-size: 12px; color: #003366; margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+
+    .field-group { margin-bottom: 12px; }
+    .field-group label {
+      display: block;
+      font-size: 11px;
+      color: #333;
+      margin-bottom: 3px;
+      font-weight: bold;
+    }
+    .field-group .hint { font-size: 10px; color: #777; margin-top: 2px; }
+    .field-group input, .field-group select, .field-group textarea {
+      width: 100%;
+      max-width: 340px;
+      border: 1px solid #888;
+      padding: 4px 6px;
+      font-size: 12px;
+      font-family: Arial;
+    }
+    .field-group input:focus, .field-group select:focus { outline: 2px solid #2874a6; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 700px; }
+
+    .notice-red {
+      background: #fde8e8;
+      border: 1px solid #c0392b;
+      padding: 6px 8px;
+      font-size: 10px;
+      color: #7b241c;
+      margin-bottom: 10px;
+    }
+
+    /* ── Ticker / Marquee ── */
+    .marquee-bar {
+      background: #fff3cd;
+      border-top: 1px solid #f39c12;
+      border-bottom: 1px solid #f39c12;
+      padding: 3px 0;
+      overflow: hidden;
+      font-size: 10px;
+      font-family: Arial;
+      color: #7d6608;
+    }
+    .marquee-inner {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 30s linear infinite;
+    }
+    @keyframes marquee { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+
+    /* ── Footer ── */
+    footer {
+      background: #2c3e50;
+      color: #aaa;
+      font-size: 10px;
+      font-family: Arial;
+      padding: 8px 12px;
+      text-align: center;
+      border-top: 2px solid #f39c12;
+    }
+    footer a { color: #7fb3d3; }
+
+    .security-badge {
+      display: inline-block;
+      background: #27ae60;
+      color: #fff;
+      font-size: 9px;
+      font-family: Arial;
+      padding: 2px 6px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .captcha-box {
+      border: 1px solid #aaa;
+      background: #f5f5f5;
+      padding: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-family: Arial;
+      margin-bottom: 8px;
+    }
+    .captcha-img {
+      background: #ddd;
+      width: 100px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Courier New";
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      letter-spacing: 4px;
+      border: 1px solid #bbb;
+      filter: blur(0.5px);
+    }
+
+    /* ── Popup overlay ── */
+    .popup-overlay {
+      display: none;
+      position: fixed; top:0; left:0; right:0; bottom:0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    .popup-overlay.show { display: flex; }
+    .popup {
+      background: #fff;
+      border: 2px solid #003366;
+      width: 380px;
+      font-family: Arial;
+    }
+    .popup-head {
+      background: #003366;
+      color: #fff;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+    }
+    .popup-body { padding: 14px; font-size: 12px; line-height: 1.6; }
+    .popup-body ul { padding-left: 18px; margin: 8px 0; }
+    .popup-foot { padding: 8px 14px; border-top: 1px solid #ddd; text-align: right; }
+  </style>
+</head>
+<body>
+
+<!-- Popup on load -->
+<div class="popup-overlay show" id="session-popup">
+  <div class="popup">
+    <div class="popup-head">
+      <span>⚠ Important System Notice</span>
+      <span style="cursor:pointer" onclick="document.getElementById('session-popup').classList.remove('show')">✕</span>
+    </div>
+    <div class="popup-body">
+      <strong>ValleyCare Patient Portal Maintenance Notice</strong><br><br>
+      Due to scheduled system maintenance, the following services may be temporarily unavailable:
+      <ul>
+        <li>Lab result downloads (PDF)</li>
+        <li>Insurance pre-authorization requests</li>
+        <li>Billing statement exports</li>
+      </ul>
+      For assistance, call <strong>1-800-555-0192</strong> (Mon–Fri 8am–5pm EST).<br><br>
+      <em style="font-size:10px;color:#777">Session will expire after 8 minutes of inactivity. Please save your work frequently. ValleyCare Health System is not responsible for data loss due to session timeout.</em>
+    </div>
+    <div class="popup-foot">
+      <button class="btn" onclick="document.getElementById('session-popup').classList.remove('show')">I Understand — Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div class="top-bar">
+  <span>ValleyCare Health System | Secure Patient Portal v3.4.1 | Browser: Chrome recommended | <a href="#">Accessibility</a> | <a href="#">Help</a></span>
+  <span>Session expires in: <strong id="timer">08:00</strong> &nbsp;|&nbsp; <a href="#">Extend Session</a> &nbsp;|&nbsp; <a href="#">Log Out</a></span>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-box">
+      <span>VC</span>
+      <small>VALLEYCARE HEALTH SYSTEM</small>
+    </div>
+    <div class="header-title">
+      <h1>Patient Portal — Secure Access</h1>
+      <p>Online Appointment Scheduling &amp; Medical Records Management System (OASMRMS) v3.4</p>
+    </div>
+    <div style="margin-left:auto; font-family:Arial; font-size:10px; color:#acd; text-align:right;">
+      HIPAA Compliant <span class="security-badge">🔒 SSL</span><br>
+      <span style="font-size:9px">256-bit encryption</span>
+    </div>
+  </div>
+</div>
+
+<!-- Nav -->
+<div class="nav">
+  <a href="#" class="active">Patient Home</a>
+  <a href="#">Appointments</a>
+  <a href="#">Medical Records</a>
+  <a href="#">Lab Results</a>
+  <a href="#">Billing &amp; Insurance</a>
+  <a href="#">Prescription Refills</a>
+  <a href="#">Secure Messaging</a>
+  <a href="#">Health Summary</a>
+  <a href="#">Forms &amp; Documents</a>
+  <a href="#">FAQ / Help Desk</a>
+</div>
+
+<!-- Marquee -->
+<div class="marquee-bar">
+  <span class="marquee-inner">
+    &nbsp;&nbsp;&nbsp;&nbsp;📢 REMINDER: Annual wellness exams must be scheduled before December 31st to apply to current plan year deductible. &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
+    Flu shots now available — schedule through this portal or walk in to any ValleyCare Urgent Care location. &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+    New: Telehealth appointments now available for established patients. Select "Telehealth" under appointment type. &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+    ⚠ Safari users: Please use Chrome or Firefox for best compatibility with our scheduling system.
+  </span>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <h3>MY ACCOUNT</h3>
+      <a href="#" class="active">▶ Dashboard</a>
+      <a href="#">Profile Settings</a>
+      <a href="#">Change Password</a>
+      <a href="#">Notification Prefs</a>
+      <a href="#">Authorized Users</a>
+    </div>
+    <div class="sidebar-section">
+      <h3>APPOINTMENTS</h3>
+      <a href="#">Schedule New</a>
+      <a href="#">Upcoming (2)</a>
+      <a href="#">Past Visits</a>
+      <a href="#">Cancel / Modify</a>
+      <a href="#">Referrals</a>
+    </div>
+    <div class="sidebar-section">
+      <h3>MEDICAL</h3>
+      <a href="#">Records Request</a>
+      <a href="#">Lab Results</a>
+      <a href="#">Immunization Hx</a>
+      <a href="#">Allergies</a>
+    </div>
+    <div class="sidebar-section">
+      <h3>BILLING</h3>
+      <a href="#">Pay Balance</a>
+      <a href="#">Statements</a>
+      <a href="#">Insurance Info</a>
+      <a href="#">FSA/HSA</a>
+    </div>
+    <div style="padding:8px; font-size:10px; color:#555; font-family:Arial; line-height:1.5;">
+      <strong>Need Help?</strong><br>
+      Call us:<br>
+      <strong>1-800-555-0192</strong><br>
+      Mon–Fri 8am–5pm<br><br>
+      <a href="#" style="color:#2874a6">Technical Support</a><br>
+      <a href="#" style="color:#2874a6">User Guide (PDF)</a>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="breadcrumb">
+      <a href="#">Home</a> &rsaquo; <a href="#">Patient Portal</a> &rsaquo; <span>Login / Dashboard</span>
+    </div>
+
+    <!-- ══ LOGIN PANEL ══ -->
+    <div id="login-panel">
+      <div class="box">
+        <div class="box-title">🔐 Secure Patient Login — ValleyCare Online Portal</div>
+        <div class="box-body">
+          <div class="login-notice">
+            <strong>⚠ NOTICE:</strong> This system is for authorized ValleyCare patients only. Unauthorized access is prohibited under 18 U.S.C. § 1030. All activity is logged and monitored. By continuing, you agree to the <a href="#" style="color:#c0392b">Terms of Use</a> and <a href="#" style="color:#c0392b">Privacy Policy</a>.
+          </div>
+
+          <div class="two-col" style="max-width:500px">
+            <div>
+              <div class="field-group">
+                <label>Patient ID / Username <span style="color:#c0392b">*</span></label>
+                <input type="text" placeholder="e.g. VCPAT-000123" style="max-width:100%">
+                <div class="hint">Your Patient ID is on your insurance card or welcome letter.</div>
+              </div>
+              <div class="field-group">
+                <label>Password <span style="color:#c0392b">*</span></label>
+                <input type="password" placeholder="Case-sensitive" style="max-width:100%">
+                <div class="hint">8–20 chars, must include 1 number &amp; 1 special character.</div>
+              </div>
+              <div class="field-group">
+                <label>Date of Birth (MM/DD/YYYY) <span style="color:#c0392b">*</span></label>
+                <input type="text" placeholder="MM/DD/YYYY" style="max-width:100%">
+              </div>
+              <div class="captcha-box">
+                <div>
+                  <div style="font-size:10px;margin-bottom:4px;">Type the characters shown:</div>
+                  <div class="captcha-img">K4mP9x</div>
+                </div>
+                <div>
+                  <input type="text" placeholder="Enter code" style="width:90px;margin-top:16px">
+                </div>
+              </div>
+              <div class="btn-row">
+                <button id="login-btn" class="btn btn-orange" onclick="doLogin()">Sign In →</button>
+                <a href="#" style="font-size:11px;color:#2874a6">Forgot Password?</a>
+                &nbsp;|&nbsp;
+                <a href="#" style="font-size:11px;color:#2874a6">Register</a>
+              </div>
+            </div>
+            <div style="border-left:1px solid #ccc; padding-left:12px; font-size:11px; color:#555;">
+              <strong style="color:#003366">First time here?</strong><br><br>
+              To register for the patient portal you will need:<br>
+              <ul style="padding-left:15px; margin:6px 0; line-height:1.8">
+                <li>Your ValleyCare Patient ID</li>
+                <li>Date of birth on file</li>
+                <li>Valid email address</li>
+                <li>Last 4 digits of SSN</li>
+              </ul>
+              <a href="#" style="color:#2874a6">➜ Register for Portal Access</a><br><br>
+              <strong style="color:#003366">Having trouble?</strong><br>
+              <a href="#" style="color:#2874a6">View Browser Requirements</a><br>
+              <a href="#" style="color:#2874a6">Download User Guide (PDF, 4.2MB)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PORTAL PANEL (shown after login) ══ -->
+    <div id="portal-panel">
+      <div class="notice-red">
+        ⚠ Your session will expire in <strong id="timer2">08:00</strong>. Unsaved changes will be lost. &nbsp;<a href="#" style="color:#c0392b">Extend Session</a>
+      </div>
+
+      <div class="box">
+        <div class="box-title">📅 Schedule an Appointment</div>
+        <div class="box-body">
+
+          <div class="tabs">
+            <div class="tab active">New Appointment</div>
+            <div class="tab">Follow-Up Visit</div>
+            <div class="tab">Telehealth</div>
+            <div class="tab">Urgent Care</div>
+          </div>
+
+          <div class="appt-form">
+            <div class="notice-red" style="max-width:700px">
+              ⚠ Fields marked with <strong style="color:#c0392b">*</strong> are required. Please complete ALL sections before submitting. Incomplete forms cannot be processed and will be returned.
+            </div>
+
+            <div class="two-col">
+              <div>
+                <div class="field-group">
+                  <label>Insurance Plan <span style="color:#c0392b">*</span></label>
+                  <select style="max-width:100%">
+                    <option value="">-- Select Insurance --</option>
+                    <option>BlueCross BlueShield PPO</option>
+                    <option>Aetna HMO</option>
+                    <option>Medicare Part B</option>
+                    <option>Medicaid</option>
+                    <option>United Healthcare</option>
+                    <option>Self-Pay / Uninsured</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label>Visit Type <span style="color:#c0392b">*</span></label>
+                  <select style="max-width:100%">
+                    <option value="">-- Select Visit Type --</option>
+                    <option>Annual Physical / Wellness Exam</option>
+                    <option>Sick Visit (New Illness)</option>
+                    <option>Follow-Up (Existing Condition)</option>
+                    <option>Specialist Referral</option>
+                    <option>Lab Review</option>
+                    <option>Pre-Operative Clearance</option>
+                    <option>Vaccination</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label>Preferred Physician / Provider <span style="color:#c0392b">*</span></label>
+                  <input type="text" id="doctor-input" placeholder="Last name (e.g. smith)" style="max-width:100%">
+                  <div class="hint">Enter last name. Partial names accepted. Leave blank to search all available providers.</div>
+                </div>
+                <div class="field-group">
+                  <label>Department / Specialty</label>
+                  <select style="max-width:100%">
+                    <option value="">-- Any Department --</option>
+                    <option>Primary Care / Family Medicine</option>
+                    <option>Internal Medicine</option>
+                    <option>Cardiology</option>
+                    <option>Orthopedics</option>
+                    <option>Neurology</option>
+                    <option>Endocrinology</option>
+                    <option>Dermatology</option>
+                    <option>OB/GYN</option>
+                    <option>Pediatrics</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <div class="field-group">
+                  <label>Preferred Appointment Date <span style="color:#c0392b">*</span></label>
+                  <input type="date" id="date-input" style="max-width:100%">
+                  <div class="hint">Appointments are available Mon–Fri. Requests within 24 hours may not be honored.</div>
+                </div>
+                <div class="field-group">
+                  <label>Preferred Time of Day</label>
+                  <select style="max-width:100%">
+                    <option>No Preference</option>
+                    <option>Morning (8am–12pm)</option>
+                    <option>Afternoon (12pm–5pm)</option>
+                    <option>Early Morning (before 9am)</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label>Location Preference</label>
+                  <select style="max-width:100%">
+                    <option>No Preference</option>
+                    <option>ValleyCare Main Campus</option>
+                    <option>North Clinic (Oakview)</option>
+                    <option>South Clinic (Riverdale)</option>
+                    <option>East Medical Plaza</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label>Alternate Date (optional)</label>
+                  <input type="date" style="max-width:100%">
+                  <div class="hint">We will attempt your preferred date first.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group" style="max-width:700px">
+              <label>Reason for Visit / Chief Complaint <span style="color:#c0392b">*</span></label>
+              <textarea rows="3" style="max-width:100%;width:100%;font-family:Arial;font-size:12px;border:1px solid #888;padding:4px;" placeholder="Briefly describe your reason for this appointment (required for medical staff review)..."></textarea>
+              <div class="hint">Do not include sensitive diagnoses here. This field is visible to scheduling staff.</div>
+            </div>
+
+            <div class="field-group" style="max-width:700px; background:#f9f9f9; border:1px solid #ddd; padding:8px;">
+              <label style="font-weight:normal; font-size:10px; display:flex; gap:6px; align-items:flex-start;">
+                <input type="checkbox" style="margin-top:2px; width:auto"> 
+                <span>I confirm that my insurance information on file is current and accurate. I understand that I am responsible for any co-pays, deductibles, or balances not covered by my insurance plan. I have read and agree to ValleyCare's Appointment and Cancellation Policy (24-hour notice required to avoid a $35 no-show fee).</span>
+              </label>
+            </div>
+
+            <div class="btn-row" style="margin-top:14px;">
+              <button id="submit-btn" class="btn btn-green" onclick="submitAppointment()">✔ Submit Appointment Request</button>
+              <button class="btn" style="background:#888;border-color:#666;">Clear Form</button>
+              <span style="font-size:10px; color:#777; font-family:Arial">Processing may take 1–2 business days. You will receive a confirmation email.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notices box -->
+      <div class="box">
+        <div class="box-title">📋 My Upcoming Appointments</div>
+        <div class="box-body" style="font-family:Arial; font-size:11px;">
+          <table style="width:100%; border-collapse:collapse; font-size:11px;">
+            <tr style="background:#dce8f0;">
+              <th style="padding:4px 8px; text-align:left; border:1px solid #aaa;">Date</th>
+              <th style="padding:4px 8px; text-align:left; border:1px solid #aaa;">Provider</th>
+              <th style="padding:4px 8px; text-align:left; border:1px solid #aaa;">Department</th>
+              <th style="padding:4px 8px; text-align:left; border:1px solid #aaa;">Location</th>
+              <th style="padding:4px 8px; text-align:left; border:1px solid #aaa;">Status</th>
+              <th style="padding:4px 8px; text-align:left; border:1px solid #aaa;">Actions</th>
+            </tr>
+            <tr>
+              <td style="padding:4px 8px; border:1px solid #ddd;">05/14/2026</td>
+              <td style="padding:4px 8px; border:1px solid #ddd;">Dr. J. Patterson, MD</td>
+              <td style="padding:4px 8px; border:1px solid #ddd;">Primary Care</td>
+              <td style="padding:4px 8px; border:1px solid #ddd;">Main Campus</td>
+              <td style="padding:4px 8px; border:1px solid #ddd;"><span style="color:green;font-weight:bold">Confirmed</span></td>
+              <td style="padding:4px 8px; border:1px solid #ddd;"><a href="#" style="color:#2874a6">Cancel</a> | <a href="#" style="color:#2874a6">Reschedule</a></td>
+            </tr>
+            <tr style="background:#f9f9f9;">
+              <td style="padding:4px 8px; border:1px solid #ddd;">06/02/2026</td>
+              <td style="padding:4px 8px; border:1px solid #ddd;">Dr. R. Nguyen, MD</td>
+              <td style="padding:4px 8px; border:1px solid #ddd;">Cardiology</td>
+              <td style="padding:4px 8px; border:1px solid #ddd;">East Medical Plaza</td>
+              <td style="padding:4px 8px; border:1px solid #ddd;"><span style="color:orange;font-weight:bold">Pending Auth.</span></td>
+              <td style="padding:4px 8px; border:1px solid #ddd;"><a href="#" style="color:#2874a6">Cancel</a> | <a href="#" style="color:#2874a6">Reschedule</a></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  ValleyCare Health System &copy; 2026 | HIPAA Notice of Privacy Practices | 
+  <a href="#">Terms of Use</a> | <a href="#">Accessibility Statement</a> | 
+  <a href="#">Contact Webmaster</a> | Version 3.4.1 (Build 20260108) | 
+  Best viewed in Internet Explorer 11, Chrome 88+, or Firefox 85+
+</footer>
+
+<script>
+  // Countdown timer (cosmetic)
+  let secs = 480;
+  setInterval(() => {
+    if (secs > 0) secs--;
+    const m = String(Math.floor(secs / 60)).padStart(2, '0');
+    const s = String(secs % 60).padStart(2, '0');
+    const t = `${m}:${s}`;
+    document.getElementById('timer').textContent = t;
+    const t2 = document.getElementById('timer2');
+    if (t2) t2.textContent = t;
+  }, 1000);
+
+  function doLogin() {
+    document.getElementById('login-panel').style.display = 'none';
+    document.getElementById('portal-panel').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  function submitAppointment() {
+    window.location.href = 'success.html' +
+      '?doctor=' + encodeURIComponent(document.getElementById('doctor-input').value) +
+      '&date=' + encodeURIComponent(document.getElementById('date-input').value);
+  }
+</script>
+</body>
+</html>

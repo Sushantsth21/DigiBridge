@@ -1,15 +1,333 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Utility Bill Pay</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CityConnect Utility Services — Online Bill Payment</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Verdana, Geneva, sans-serif; font-size: 12px; background: #e8ecf0; color: #222; }
+
+    .gov-strip { background: #1a3a5c; color: #fff; padding: 2px 10px; font-size: 10px; font-family: Arial; display: flex; justify-content: space-between; }
+    .gov-strip a { color: #aac0d8; }
+
+    .header { background: #fff; }
+    .header-top { background: linear-gradient(135deg, #1a3a5c 0%, #2c5f8a 60%, #1a3a5c 100%); padding: 10px 14px; display: flex; align-items: center; gap: 14px; }
+    .city-seal {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: radial-gradient(circle, #f0c040 0%, #d4a017 50%, #1a3a5c 51%, #1a3a5c 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0; border: 3px solid #f0c040;
+    }
+    .header-text h1 { color: #fff; font-size: 16px; font-family: "Times New Roman"; }
+    .header-text p { color: #aac0d8; font-size: 10px; font-family: Arial; }
+    .header-contact { margin-left: auto; text-align: right; color: #aac0d8; font-size: 10px; font-family: Arial; }
+    .header-contact strong { color: #f0c040; }
+
+    .nav { background: #2c5f8a; display: flex; flex-wrap: wrap; border-bottom: 3px solid #f0c040; }
+    .nav a { color: #dde8f0; text-decoration: none; padding: 7px 13px; font-size: 11px; font-family: Arial; border-right: 1px solid #3a6f9a; white-space: nowrap; }
+    .nav a:hover { background: #1a3a5c; }
+    .nav a.active { background: #f0c040; color: #1a3a5c; font-weight: bold; }
+
+    .notice-bar { background: #fef3cd; border-bottom: 2px solid #f0c040; padding: 5px 12px; font-size: 11px; color: #7d5a00; font-family: Arial; }
+
+    .layout { display: flex; min-height: calc(100vh - 160px); }
+    .sidebar { width: 175px; min-width: 175px; background: #dde8f0; border-right: 2px solid #aab8c8; }
+    .sidebar h3 { background: #1a3a5c; color: #f0c040; font-size: 10px; font-family: Arial; padding: 5px 8px; text-transform: uppercase; letter-spacing: 1px; }
+    .sidebar a { display: block; padding: 5px 10px 5px 14px; font-size: 11px; font-family: Arial; color: #1a3a5c; text-decoration: none; border-bottom: 1px solid #c8d8e8; }
+    .sidebar a:hover { background: #c8d8e8; }
+    .sidebar a.active { font-weight: bold; background: #fff; color: #c0392b; }
+
+    .main { flex: 1; padding: 12px; }
+    .crumb { font-size: 10px; color: #666; font-family: Arial; margin-bottom: 10px; }
+    .crumb a { color: #2c5f8a; }
+
+    .box { background: #fff; border: 1px solid #b8c8d8; margin-bottom: 12px; }
+    .box-head { background: linear-gradient(to bottom, #2c5f8a, #1a3a5c); color: #fff; padding: 6px 10px; font-size: 12px; font-family: Arial; font-weight: bold; }
+    .box-body { padding: 12px; }
+
+    .account-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+    .acct-card { background: #f0f5fa; border: 1px solid #b8c8d8; padding: 8px 10px; text-align: center; }
+    .acct-card .label { font-size: 9px; color: #666; font-family: Arial; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .acct-card .value { font-size: 16px; font-weight: bold; font-family: "Times New Roman"; color: #1a3a5c; }
+    .acct-card .value.due { color: #c0392b; }
+    .acct-card .value.paid { color: #27ae60; }
+    .acct-card .sub-label { font-size: 9px; color: #888; margin-top: 2px; }
+
+    .bill-table { width: 100%; border-collapse: collapse; font-size: 11px; font-family: Arial; }
+    .bill-table th { background: #dde8f0; padding: 5px 8px; text-align: left; border: 1px solid #b8c8d8; font-size: 10px; text-transform: uppercase; color: #444; }
+    .bill-table td { padding: 5px 8px; border: 1px solid #dde8f0; }
+    .bill-table tr:nth-child(even) { background: #f5f8fc; }
+    .bill-table tfoot td { background: #1a3a5c; color: #fff; font-weight: bold; }
+
+    .field { margin-bottom: 10px; }
+    .field label { display: block; font-size: 11px; font-weight: bold; color: #333; font-family: Arial; margin-bottom: 3px; }
+    .field label .req { color: #c0392b; }
+    .field input, .field select { border: 1px solid #aaa; padding: 4px 6px; font-size: 12px; width: 100%; max-width: 280px; font-family: Verdana; }
+    .field input:focus, .field select:focus { outline: 2px solid #2c5f8a; }
+    .field .hint { font-size: 10px; color: #888; margin-top: 2px; font-family: Arial; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 680px; }
+    .form-section { border: 1px solid #b8c8d8; padding: 12px; background: #f8fafc; margin-bottom: 12px; }
+    .form-section h3 { font-size: 12px; color: #1a3a5c; margin-bottom: 10px; font-family: Arial; border-bottom: 1px solid #dde8f0; padding-bottom: 4px; }
+
+    .payment-methods { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .pay-method { border: 2px solid #b8c8d8; padding: 6px 12px; font-size: 11px; font-family: Arial; cursor: pointer; background: #f5f8fc; }
+    .pay-method.active { border-color: #2c5f8a; background: #dde8f0; font-weight: bold; color: #1a3a5c; }
+
+    .security-note { background: #e8f5e9; border: 1px solid #81c784; padding: 7px 10px; font-size: 10px; font-family: Arial; color: #2e7d32; margin-bottom: 10px; }
+
+    .btn { padding: 5px 18px; font-size: 12px; font-family: Arial; cursor: pointer; border: 1px solid; }
+    .btn-blue { background: linear-gradient(to bottom, #2c5f8a, #1a3a5c); color: #fff; border-color: #0d2b47; }
+    .btn-blue:hover { background: linear-gradient(to bottom, #1a3a5c, #0d2b47); }
+    .btn-yellow { background: linear-gradient(to bottom, #f0c040, #d4a017); color: #1a3a5c; border-color: #a07810; font-weight: bold; }
+    .btn-grey { background: linear-gradient(to bottom, #95a5a6, #717d7e); color: #fff; border-color: #5d6d7e; }
+    .btn-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+
+    .legal { font-size: 10px; color: #888; font-family: Arial; line-height: 1.5; border-top: 1px dashed #ccc; padding-top: 8px; margin-top: 10px; }
+
+    footer { background: #1a3a5c; color: #aac0d8; font-size: 10px; font-family: Arial; padding: 10px 12px; }
+    footer .footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 800px; margin-bottom: 8px; }
+    footer h4 { color: #f0c040; font-size: 10px; margin-bottom: 4px; }
+    footer a { color: #aac0d8; }
+    footer .copy { text-align: center; border-top: 1px solid #2c5f8a; padding-top: 6px; }
+  </style>
 </head>
 <body>
-  <h1>Pay Your Utility Bill</h1>
-  <form>
-    <label>Account #: <input type="text" name="account" /></label><br />
-    <label>Amount: <input type="number" name="amount" step="0.01" /></label><br />
-    <button type="submit">Pay Bill</button>
-  </form>
+
+<div class="gov-strip">
+  <span>🏛 City of Valleyport | Official Municipal Services Portal | Version 4.2</span>
+  <span><a href="#">Accessibility</a> | <a href="#">Language / Idioma</a> | <a href="#">Site Map</a> | <strong id="date-time">—</strong></span>
+</div>
+
+<div class="header">
+  <div class="header-top">
+    <div class="city-seal">🏛</div>
+    <div class="header-text">
+      <h1>City of Valleyport — Utility Services</h1>
+      <p>Department of Public Works &amp; Utilities | Online Bill Payment Center</p>
+    </div>
+    <div class="header-contact">
+      <div><strong>Utility Billing:</strong> (555) 270-4400</div>
+      <div>Mon–Fri 8am–4:30pm</div>
+      <div style="margin-top:4px"><strong>After-Hours Emergency:</strong> (555) 270-4411</div>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <a href="#">Home</a>
+  <a href="#" class="active">Pay My Bill</a>
+  <a href="#">Account Summary</a>
+  <a href="#">Usage History</a>
+  <a href="#">Start / Stop Service</a>
+  <a href="#">Report Outage</a>
+  <a href="#">Budget Billing</a>
+  <a href="#">Assistance Programs</a>
+  <a href="#">Forms &amp; Applications</a>
+  <a href="#">Contact Us</a>
+</div>
+
+<div class="notice-bar">
+  ⚠ <strong>Notice:</strong> Due to infrastructure upgrades, online payments may experience a 48-hour processing delay. Your account will not be flagged for late fees during this period. <a href="#">Read full notice →</a>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <h3>MY ACCOUNT</h3>
+    <a href="#" class="active">▶ Pay Bill Online</a>
+    <a href="#">Account Overview</a>
+    <a href="#">Billing History</a>
+    <a href="#">Usage Details</a>
+    <a href="#">Paperless Billing</a>
+    <a href="#">AutoPay Setup</a>
+    <h3>SERVICES</h3>
+    <a href="#">Water &amp; Sewer</a>
+    <a href="#">Electric</a>
+    <a href="#">Stormwater Fee</a>
+    <a href="#">Trash Collection</a>
+    <h3>ASSISTANCE</h3>
+    <a href="#">LIHEAP Program</a>
+    <a href="#">Budget Billing</a>
+    <a href="#">Payment Plans</a>
+    <a href="#">Shutoff Protection</a>
+    <div style="padding:8px;font-size:10px;color:#555;font-family:Arial;line-height:1.6;border-top:1px solid #b8c8d8;margin-top:6px;">
+      <strong>Questions?</strong><br>
+      Utility Billing:<br>
+      <strong>(555) 270-4400</strong><br><br>
+      Monday–Friday<br>
+      8:00 AM – 4:30 PM
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="crumb"><a href="#">Home</a> › <a href="#">Utility Services</a> › <a href="#">My Account</a> › <span>Pay Bill Online</span></div>
+
+    <!-- Account summary cards -->
+    <div class="account-summary">
+      <div class="acct-card">
+        <div class="label">Account #</div>
+        <div class="value" style="font-size:13px;">VPU-441-8820</div>
+        <div class="sub-label">Service Address: 123 Main St</div>
+      </div>
+      <div class="acct-card">
+        <div class="label">Current Balance</div>
+        <div class="value due">$142.50</div>
+        <div class="sub-label">Due: May 5, 2026</div>
+      </div>
+      <div class="acct-card">
+        <div class="label">Last Payment</div>
+        <div class="value paid">$138.20</div>
+        <div class="sub-label">Paid: Apr 3, 2026</div>
+      </div>
+      <div class="acct-card">
+        <div class="label">Avg Monthly Bill</div>
+        <div class="value">$135.80</div>
+        <div class="sub-label">Based on 12-month avg</div>
+      </div>
+    </div>
+
+    <!-- Current bill breakdown -->
+    <div class="box">
+      <div class="box-head">🧾 Current Bill — Statement Period: March 15 – April 14, 2026</div>
+      <div class="box-body">
+        <table class="bill-table">
+          <tr><th>Service</th><th>Meter / Account</th><th>Usage</th><th>Rate</th><th>Amount</th></tr>
+          <tr><td>Water Supply</td><td>MTR-8820-W</td><td>4,200 gallons</td><td>$0.0148/gal</td><td>$62.16</td></tr>
+          <tr><td>Sewer / Wastewater</td><td>MTR-8820-W</td><td>4,200 gallons</td><td>$0.0089/gal</td><td>$37.38</td></tr>
+          <tr><td>Stormwater Management Fee</td><td>Fixed</td><td>—</td><td>$8.00/month</td><td>$8.00</td></tr>
+          <tr><td>Trash &amp; Recycling Collection</td><td>Fixed</td><td>1x weekly</td><td>$18.50/month</td><td>$18.50</td></tr>
+          <tr><td>Infrastructure Surcharge</td><td>Fixed</td><td>—</td><td>$6.00/month</td><td>$6.00</td></tr>
+          <tr><td>State Utility Tax (3.5%)</td><td>—</td><td>—</td><td>—</td><td>$4.62</td></tr>
+          <tr><td>City Franchise Fee (1.5%)</td><td>—</td><td>—</td><td>—</td><td>$1.98</td></tr>
+          <tr><td colspan="4">Prior Balance</td><td>$3.86</td></tr>
+          <tfoot><tr><td colspan="4"><strong>TOTAL AMOUNT DUE</strong></td><td><strong>$142.50</strong></td></tr></tfoot>
+        </table>
+        <p style="font-size:10px;color:#888;margin-top:6px;font-family:Arial;">
+          Questions about your bill? Call <strong>(555) 270-4400</strong> or visit <a href="#" style="color:#2c5f8a">our office</a> at City Hall, Room 104.
+        </p>
+      </div>
+    </div>
+
+    <!-- Payment form -->
+    <div class="box">
+      <div class="box-head">💳 Make a Payment</div>
+      <div class="box-body">
+
+        <div class="form-section">
+          <h3>Step 1 — Select Payment Amount</h3>
+          <div class="two-col">
+            <div>
+              <div class="field">
+                <label>Payment Amount <span class="req">*</span></label>
+                <input type="text" id="amount-input" placeholder="e.g. 142.50" value="142.50">
+                <div class="hint">Current balance due: <strong>$142.50</strong>. You may pay any amount up to $500. Partial payments accepted.</div>
+              </div>
+            </div>
+            <div>
+              <div class="field">
+                <label>Quick Pay Options</label>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+                  <button class="btn btn-blue" style="font-size:10px;padding:3px 8px;" onclick="document.getElementById('amount-input').value='142.50'">Full Balance $142.50</button>
+                  <button class="btn btn-grey" style="font-size:10px;padding:3px 8px;" onclick="document.getElementById('amount-input').value='71.25'">Half $71.25</button>
+                  <button class="btn btn-grey" style="font-size:10px;padding:3px 8px;" onclick="document.getElementById('amount-input').value=''">Other Amount</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Step 2 — Payment Method</h3>
+          <div class="payment-methods">
+            <div class="pay-method active">💳 Credit / Debit Card</div>
+            <div class="pay-method">🏦 eCheck / Bank Account</div>
+            <div class="pay-method">📱 PayPal</div>
+            <div class="pay-method">💵 Pay In Person</div>
+          </div>
+          <div style="margin-top:8px;">
+            <div class="field-row" style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;max-width:500px;">
+              <div class="field">
+                <label>Card Number <span class="req">*</span></label>
+                <input type="text" placeholder="XXXX XXXX XXXX XXXX">
+              </div>
+              <div class="field">
+                <label>Expiration <span class="req">*</span></label>
+                <input type="text" placeholder="MM/YY">
+              </div>
+              <div class="field">
+                <label>CVV <span class="req">*</span></label>
+                <input type="text" placeholder="XXX" style="max-width:70px">
+              </div>
+            </div>
+            <div class="field">
+              <label>Name on Card <span class="req">*</span></label>
+              <input type="text" placeholder="As it appears on card">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Step 3 — Confirm Account</h3>
+          <div class="two-col">
+            <div>
+              <div class="field">
+                <label>Service Account Number <span class="req">*</span></label>
+                <input type="text" placeholder="e.g. VPU-441-8820" value="VPU-441-8820">
+                <div class="hint">Found on your bill or utility card.</div>
+              </div>
+            </div>
+            <div>
+              <div class="field">
+                <label>Billing ZIP Code <span class="req">*</span></label>
+                <input type="text" placeholder="e.g. 41001" maxlength="10">
+              </div>
+            </div>
+          </div>
+
+          <div class="security-note">
+            🔒 Your payment is secured with 256-bit SSL encryption. We do not store credit card numbers. A convenience fee of <strong>$1.95</strong> applies to credit/debit card payments. ACH/eCheck payments are free.
+          </div>
+
+          <div class="field">
+            <label style="font-weight:normal;font-size:11px;display:flex;gap:6px;align-items:flex-start;">
+              <input type="checkbox" style="margin-top:2px;width:auto">
+              <span>I authorize the City of Valleyport to charge the payment method above for the amount specified. I understand this payment will be applied to account VPU-441-8820. I have read and agree to the <a href="#" style="color:#2c5f8a">Electronic Payment Terms</a>.</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button id="pay-btn" class="btn btn-yellow" onclick="submitPayment()">🔒 Submit Secure Payment →</button>
+          <button class="btn btn-grey">Cancel</button>
+          <span style="font-size:10px;color:#888;font-family:Arial">Processing: same business day if submitted before 3pm EST.</span>
+        </div>
+
+        <div class="legal">
+          <strong>Important:</strong> Payments submitted after 3:00 PM EST may not be processed until the next business day. To avoid service interruption for past-due accounts, contact our office at (555) 270-4400. The City of Valleyport does not accept responsibility for payments delayed by banking system outages or internet connectivity issues on the customer's side.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div><h4>City of Valleyport</h4><a href="#">Official Website</a><br><a href="#">City Council</a><br><a href="#">Ordinances</a></div>
+    <div><h4>Utility Services</h4><a href="#">Rates &amp; Fees</a><br><a href="#">Service Area Map</a><br><a href="#">Water Quality Report</a></div>
+    <div><h4>Help &amp; Contact</h4><a href="#">FAQ</a><br><a href="#">Accessibility</a><br>Billing: (555) 270-4400</div>
+  </div>
+  <div class="copy">City of Valleyport, Dept. of Public Works &amp; Utilities &copy; 2026 | <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a> | <a href="#">ADA Compliance</a> | Portal v4.2.1</div>
+</footer>
+
+<script>
+  document.getElementById('date-time').textContent = new Date().toLocaleString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+  function submitPayment() {
+    const amount = document.getElementById('amount-input').value;
+    window.location.href = 'success.html?amount=' + encodeURIComponent(amount);
+  }
+</script>
 </body>
 </html>

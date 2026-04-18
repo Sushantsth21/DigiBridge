@@ -1,11 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Payment Success</title>
+  <meta charset="UTF-8">
+  <title>Payment Confirmed — City of Valleyport Utilities</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Verdana, Geneva, sans-serif; font-size: 12px; background: #e8ecf0; color: #222; }
+    .gov-strip { background: #1a3a5c; color: #aac0d8; padding: 2px 10px; font-size: 10px; }
+    .header { background: linear-gradient(135deg, #1a3a5c 0%, #2c5f8a 60%, #1a3a5c 100%); padding: 10px 14px; display: flex; align-items: center; gap: 14px; border-bottom: 4px solid #27ae60; }
+    .city-seal { width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle, #f0c040 0%, #d4a017 50%, #27ae60 51%, #1e8449 100%); display: flex; align-items: center; justify-content: center; font-size: 22px; border: 3px solid #f0c040; flex-shrink: 0; }
+    .header-text h1 { color: #fff; font-size: 16px; font-family: "Times New Roman"; }
+    .header-text p { color: #aac0d8; font-size: 10px; font-family: Arial; }
+    .main { max-width: 680px; margin: 20px auto; }
+
+    .success-banner {
+      background: linear-gradient(to bottom, #1e8449, #27ae60);
+      color: #fff; padding: 16px 20px; text-align: center;
+      border: 3px solid #145a32; margin-bottom: 14px;
+    }
+    .success-banner .icon { font-size: 44px; margin-bottom: 8px; }
+    .success-banner h2 { font-size: 22px; font-family: "Times New Roman"; margin-bottom: 4px; }
+    .success-banner p { font-size: 11px; color: #d5f5e3; font-family: Arial; }
+
+    .conf-box { background: #fff; border: 2px solid #27ae60; margin-bottom: 12px; }
+    .conf-box-title { background: #eafaf1; border-bottom: 1px solid #27ae60; padding: 6px 12px; font-size: 12px; font-weight: bold; color: #1e8449; font-family: Arial; }
+    .conf-body { padding: 12px 16px; font-size: 12px; line-height: 2; font-family: Arial; }
+    .conf-row { display: flex; border-bottom: 1px dotted #ddd; padding: 4px 0; }
+    .conf-row:last-child { border-bottom: none; }
+    .conf-label { width: 220px; color: #555; font-size: 11px; }
+    .conf-value { font-weight: bold; color: #1a3a5c; }
+    .conf-number { font-family: "Courier New"; font-size: 18px; font-weight: bold; color: #1a3a5c; background: #eafaf1; border: 1px solid #27ae60; padding: 4px 12px; display: inline-block; letter-spacing: 2px; }
+
+    .amount-big { font-size: 28px; color: #27ae60; font-weight: bold; font-family: "Times New Roman"; }
+
+    .notice { background: #e8f4fc; border: 1px solid #5dade2; padding: 10px 14px; font-size: 11px; line-height: 1.7; margin-bottom: 12px; font-family: Arial; }
+    .notice ul { padding-left: 16px; }
+
+    .btn { padding: 5px 18px; font-size: 12px; font-family: Arial; cursor: pointer; border: 1px solid; text-decoration: none; display: inline-block; margin-right: 8px; }
+    .btn-blue { background: linear-gradient(to bottom, #2c5f8a, #1a3a5c); color: #fff; border-color: #0d2b47; }
+    .btn-grey { background: linear-gradient(to bottom, #95a5a6, #717d7e); color: #fff; border-color: #5d6d7e; }
+
+    footer { background: #1a3a5c; color: #aac0d8; font-size: 10px; font-family: Arial; padding: 8px 12px; text-align: center; margin-top: 20px; }
+    footer a { color: #aac0d8; }
+  </style>
 </head>
 <body>
-  <h1>Payment received!</h1>
-  <p>Your utility bill payment was successful.</p>
+<div class="gov-strip">City of Valleyport | Official Municipal Services Portal</div>
+<div class="header">
+  <div class="city-seal">🏛</div>
+  <div class="header-text">
+    <h1>City of Valleyport — Utility Services</h1>
+    <p>Payment Confirmation | Department of Public Works &amp; Utilities</p>
+  </div>
+</div>
+
+<div class="main">
+  <div class="success-banner">
+    <div class="icon">✅</div>
+    <h2>Payment Processed Successfully!</h2>
+    <p>Your utility payment has been received and applied to your account.</p>
+  </div>
+
+  <div class="conf-box">
+    <div class="conf-box-title">🧾 Payment Confirmation Receipt</div>
+    <div class="conf-body">
+      <div class="conf-row">
+        <div class="conf-label">Confirmation Number:</div>
+        <div class="conf-value"><span class="conf-number" id="conf-num">VPU-2026-XXXXXXXX</span></div>
+      </div>
+      <div class="conf-row">
+        <div class="conf-label">Amount Paid:</div>
+        <div class="conf-value"><span class="amount-big" id="amount-display">$142.50</span></div>
+      </div>
+      <div class="conf-row">
+        <div class="conf-label">Convenience Fee:</div>
+        <div class="conf-value">$1.95 (credit card)</div>
+      </div>
+      <div class="conf-row">
+        <div class="conf-label">Total Charged:</div>
+        <div class="conf-value" id="total-display">$144.45</div>
+      </div>
+      <div class="conf-row">
+        <div class="conf-label">Account Number:</div>
+        <div class="conf-value">VPU-441-8820</div>
+      </div>
+      <div class="conf-row">
+        <div class="conf-label">Service Address:</div>
+        <div class="conf-value">123 Main St, Valleyport, KY 41001</div>
+      </div>
+      <div class="conf-row">
+        <div class="conf-label">Remaining Balance:</div>
+        <div class="conf-value" style="color:#27ae60;" id="remaining">$0.00</div>
+      </div>
+      <div class="conf-row">
+        <div class="conf-label">Payment Method:</div>
+        <div class="conf-value">Credit Card ending in ****</div>
+      </div>
+      <div class="conf-row">
+        <div class="conf-label">Transaction Date/Time:</div>
+        <div class="conf-value" id="txn-time">—</div>
+      </div>
+      <div class="conf-row">
+        <div class="conf-label">Status:</div>
+        <div class="conf-value" style="color:#27ae60">✔ APPROVED</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice">
+    <strong>📧 Keep this for your records:</strong>
+    <ul>
+      <li>A receipt has been emailed to the address on file.</li>
+      <li>This payment will appear on your bank statement within 2–3 business days as <strong>"CITY OF VALLEYPORT UTIL"</strong>.</li>
+      <li>Your account is now current. No further action is needed.</li>
+      <li>Next bill due approximately: <strong>June 5, 2026</strong>.</li>
+    </ul>
+  </div>
+
+  <div>
+    <a href="index.html" class="btn btn-blue">← Return to Utility Portal</a>
+    <button class="btn btn-grey" onclick="window.print()">🖨 Print Receipt</button>
+  </div>
+</div>
+
+<footer>
+  City of Valleyport, Dept. of Public Works &amp; Utilities &copy; 2026 | 
+  <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a> | Portal v4.2.1
+</footer>
+
+<script>
+  const p = new URLSearchParams(window.location.search);
+  const amount = parseFloat(p.get('amount') || '142.50');
+  const total = (amount + 1.95).toFixed(2);
+  const remaining = Math.max(0, 142.50 - amount).toFixed(2);
+
+  document.getElementById('amount-display').textContent = '$' + amount.toFixed(2);
+  document.getElementById('total-display').textContent = '$' + total;
+  document.getElementById('remaining').textContent = '$' + remaining;
+  document.getElementById('conf-num').textContent = 'VPU-2026-' + Math.floor(10000000 + Math.random() * 90000000);
+  document.getElementById('txn-time').textContent = new Date().toLocaleString('en-US');
+</script>
 </body>
 </html>
