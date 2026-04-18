@@ -1,0 +1,39 @@
+
+services:
+  digital-bridge:
+    build: .
+    container_name: digital-bridge
+    restart: unless-stopped
+    ports:
+      - "8000:8000"      # Local dev: localhost:8000 → Uvicorn:8000
+      - "80:8000"        # Vultr: public IP:80 → Uvicorn:8000
+    environment:
+      # ── Required: set these before running ──
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - ELEVENLABS_VOICE_ID=${ELEVENLABS_VOICE_ID:-EXAVITQu4vr4xnSDxMaL}
+      # ── Optional fallback LLM ───────────────
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
+      # ── Portal base URL (dummy portals served separately or same host) ──
+      - PORTAL_BASE_URL=${PORTAL_BASE_URL:-http://localhost:8080}
+    # Chromium needs /dev/shm > 64MB for stable rendering
+    shm_size: "256m"
+    # Required for headless Chromium in Docker
+    security_opt:
+      - seccomp:unconfined
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ── Dummy portal static server ─────────────
+  dummy-portal:
+    image: nginx:alpine
+    container_name: digital-bridge-portals
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./dummy_portal:/usr/share/nginx/html:ro

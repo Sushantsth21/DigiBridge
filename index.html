@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Bridge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & variables ────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0a0f1a;
+      --surface:  #111827;
+      --border:   #1e293b;
+      --accent:   #38bdf8;
+      --accent2:  #818cf8;
+      --success:  #34d399;
+      --warn:     #fbbf24;
+      --danger:   #f87171;
+      --text:     #f1f5f9;
+      --muted:    #64748b;
+      --mic-size: clamp(120px, 22vw, 180px);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(14px, 1.6vw, 17px);
+    }
+
+    /* ── Layout ───────────────────────────────────── */
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 2rem clamp(1rem, 5vw, 4rem);
+      gap: 2rem;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+    }
+
+    .logo {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .logo span { font-weight: 300; }
+
+    /* ── Portal selector ──────────────────────────── */
+    .portal-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .portal-btn {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .portal-btn:hover { border-color: var(--accent); color: var(--text); }
+    .portal-btn.active {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+      color: var(--accent);
+    }
+    .portal-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+    /* ── Main content ─────────────────────────────── */
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+    }
+
+    /* ── Mic button ───────────────────────────────── */
+    .mic-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pulse-ring {
+      position: absolute;
+      width: var(--mic-size);
+      height: var(--mic-size);
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      opacity: 0;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%   { transform: scale(1);   opacity: 0.7; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+
+    .listening .pulse-ring:nth-child(1) { animation: pulse 1.4s ease-out infinite; }
+    .listening .pulse-ring:nth-child(2) { animation: pulse 1.4s ease-out 0.45s infinite; }
+    .listening .pulse-ring:nth-child(3) { animation: pulse 1.4s ease-out 0.9s infinite; }
+
+    #mic-btn {
+      position: relative;
+      z-index: 1;
+      width: var(--mic-size);
+      height: var(--mic-size);
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      background: var(--surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      transition: transform 0.15s, background 0.2s, border-color 0.2s;
+      box-shadow: 0 0 40px color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+    #mic-btn:hover  { transform: scale(1.06); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+    #mic-btn:active { transform: scale(0.96); }
+    #mic-btn:focus-visible { outline: 4px solid var(--accent2); outline-offset: 6px; }
+    #mic-btn.recording { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); }
+
+    .mic-label {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(0.85rem, 1.5vw, 1rem);
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-top: -0.5rem;
+    }
+
+    /* ── Transcript box ───────────────────────────── */
+    #transcript-box {
+      width: 100%;
+      max-width: 620px;
+      min-height: 3.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 0.9rem 1.25rem;
+      font-size: 1rem;
+      color: var(--text);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    #transcript-box.placeholder { color: var(--muted); font-style: italic; }
+
+    /* ── Status ticker  (Feature #2) ─────────────── */
+    #status-ticker {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-height: 6rem;
+    }
+
+    .status-step {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      background: var(--surface);
+      border-left: 3px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--muted);
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: opacity 0.35s, transform 0.35s;
+    }
+    .status-step.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .status-step.active  { border-left-color: var(--accent);  color: var(--text); }
+    .status-step.done    { border-left-color: var(--success); color: var(--success); }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Result card ──────────────────────────────── */
+    #result-card {
+      display: none;
+      width: 100%;
+      max-width: 620px;
+      border: 1px solid var(--success);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--success) 6%, var(--surface));
+    }
+    #result-card.error { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 6%, var(--surface)); }
+    .result-header {
+      padding: 0.75rem 1.25rem;
+      background: color-mix(in srgb, var(--success) 15%, var(--surface));
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--success);
+    }
+    #result-card.error .result-header { color: var(--danger); background: color-mix(in srgb, var(--danger) 15%, var(--surface)); }
+    .result-message { padding: 1rem 1.25rem; line-height: 1.6; }
+    #result-screenshot {
+      width: 100%;
+      border-top: 1px solid var(--border);
+      display: block;
+      max-height: 320px;
+      object-fit: cover;
+    }
+
+    /* ── Footer ───────────────────────────────────── */
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .session-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+    .dot.active { background: var(--success); }
+
+    #repeat-btn {
+      display: none;
+      background: none;
+      border: 1px solid var(--accent2);
+      color: var(--accent2);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    #repeat-btn:hover { background: color-mix(in srgb, var(--accent2) 12%, transparent); }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">Digital <span>Bridge</span></div>
+    <!-- Portal selector (Feature #5) -->
+    <div class="portal-row" id="portal-row" role="group" aria-label="Select portal">
+      <button class="portal-btn active" data-portal="hospital" aria-pressed="true">🏥 Hospital</button>
+      <button class="portal-btn" data-portal="pharmacy"  aria-pressed="false">💊 Pharmacy</button>
+      <button class="portal-btn" data-portal="utility"   aria-pressed="false">💡 Utility</button>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main>
+    <!-- Mic -->
+    <div>
+      <div class="mic-wrap" id="mic-wrap">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        <button id="mic-btn" aria-label="Press to speak" aria-pressed="false">🎙️</button>
+      </div>
+      <p class="mic-label" id="mic-label" aria-live="polite">Press to speak</p>
+    </div>
+
+    <!-- Transcript -->
+    <div id="transcript-box" class="placeholder" role="status" aria-live="polite">
+      Your words will appear here…
+    </div>
+
+    <!-- Live status ticker (Feature #2) -->
+    <div id="status-ticker" aria-live="polite" aria-label="Processing status"></div>
+
+    <!-- Result card -->
+    <div id="result-card" role="region" aria-label="Result">
+      <div class="result-header" id="result-header">✅ Done</div>
+      <div class="result-message" id="result-message"></div>
+      <img id="result-screenshot" alt="Confirmation screenshot" style="display:none" />
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="session-badge">
+      <div class="dot" id="session-dot"></div>
+      <span id="session-label">No session</span>
+    </div>
+    <button id="repeat-btn" aria-label="Repeat last action" title="Repeat last action">↩ Repeat last</button>
+    <span>Digital Bridge v2.0</span>
+  </footer>
+
+</div>
+
+<!-- Hidden audio for ElevenLabs playback -->
+<audio id="tts-audio" preload="auto" style="display:none"></audio>
+
+  <div id="toast" style="display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:1rem 2rem;border-radius:1.5rem;box-shadow:0 2px 12px #0003;font-size:1.1rem;z-index:9999;opacity:0;transition:opacity 0.4s;pointer-events:none;"></div>
+  <script src="app.js"></script>
+  <script>
+    // --- Dynamic Portal Content Loader ---
+    const portalRow = document.getElementById('portal-row');
+    const main = document.querySelector('main');
+    let utilityHtml = null;
+    // Toast notification
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.opacity = 1; }, 10);
+      setTimeout(() => { toast.style.opacity = 0; setTimeout(()=>{toast.style.display='none';},400); }, 2600);
+    }
+    // Portal switching
+    portalRow.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('portal-btn')) {
+        document.querySelectorAll('.portal-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+        const portal = e.target.getAttribute('data-portal');
+        if (portal === 'utility') {
+          showToast('Loading Utility Portal...');
+          if (!utilityHtml) {
+            // Fetch the utility portal HTML (simulate fetch for this demo)
+            utilityHtml = `<div style=\"width:100%;max-width:700px;margin:0 auto;\">${`<nav style=\"background:#e0e0e0;padding:10px 0 10px 40px;display:flex;gap:30px;border-bottom:1px solid #bbb;\"><a style=\"color:#2d3e50;text-decoration:underline;font-size:1.1em;cursor:pointer;\" onclick=\"showSection('electric')\">Electric</a><a style=\"color:#2d3e50;text-decoration:underline;font-size:1.1em;cursor:pointer;\" onclick=\"showSection('water')\">Water</a><a style=\"color:#2d3e50;text-decoration:underline;font-size:1.1em;cursor:pointer;\" onclick=\"showSection('trash')\">Trash</a><a style=\"color:#2d3e50;text-decoration:underline;font-size:1.1em;cursor:pointer;\" onclick=\"showSection('gas')\">Gas</a></nav><div style=\"display:flex;flex-direction:row-reverse;justify-content:space-between;margin:0 0;min-height:70vh;\"><aside style=\"width:220px;background:#f0f0f0;border-left:2px solid #ccc;padding:30px 10px 10px 10px;font-size:1.1em;\"><ul style=\"list-style:square inside;padding:0;\"><li><a style=\"cursor:pointer;\" onclick=\"showSection('electric')\">Pay Electric Bill</a></li><li><a style=\"cursor:pointer;\" onclick=\"showSection('water')\">Pay Water Bill</a></li><li><a style=\"cursor:pointer;\" onclick=\"showSection('trash')\">Pay Trash Bill</a></li><li><a style=\"cursor:pointer;\" onclick=\"showSection('gas')\">Pay Gas Bill</a></li></ul></aside><div style=\"flex:1;padding:40px 30px 10px 30px;\"><form id=\"electric-form\" style=\"display:none;background:#fff;border:1px solid #bbb;padding:30px 30px 20px 30px;margin-bottom:30px;box-shadow:0 2px 8px #eee;\"><h2 style=\"margin-top:0;color:#2d3e50;\">Electric Bill Payment</h2><label for=\"electric-bill\">Enter Electric Bill Amount ($):</label><input type=\"number\" id=\"electric-bill\" min=\"0\" step=\"0.01\" placeholder=\"e.g. 120.50\"><button type=\"button\" onclick=\"showBill('electric')\">Pay Electric Bill</button><div class=\"result\" id=\"electric-result\"></div></form><form id=\"water-form\" style=\"display:none;background:#fff;border:1px solid #bbb;padding:30px 30px 20px 30px;margin-bottom:30px;box-shadow:0 2px 8px #eee;\"><h2 style=\"margin-top:0;color:#2d3e50;\">Water Bill Payment</h2><label for=\"water-bill\">Enter Water Bill Amount ($):</label><input type=\"number\" id=\"water-bill\" min=\"0\" step=\"0.01\" placeholder=\"e.g. 45.75\"><button type=\"button\" onclick=\"showBill('water')\">Pay Water Bill</button><div class=\"result\" id=\"water-result\"></div></form><form id=\"trash-form\" style=\"display:none;background:#fff;border:1px solid #bbb;padding:30px 30px 20px 30px;margin-bottom:30px;box-shadow:0 2px 8px #eee;\"><h2 style=\"margin-top:0;color:#2d3e50;\">Trash Bill Payment</h2><label for=\"trash-bill\">Enter Trash Bill Amount ($):</label><input type=\"number\" id=\"trash-bill\" min=\"0\" step=\"0.01\" placeholder=\"e.g. 30.00\"><button type=\"button\" onclick=\"showBill('trash')\">Pay Trash Bill</button><div class=\"result\" id=\"trash-result\"></div></form><form id=\"gas-form\" style=\"display:none;background:#fff;border:1px solid #bbb;padding:30px 30px 20px 30px;margin-bottom:30px;box-shadow:0 2px 8px #eee;\"><h2 style=\"margin-top:0;color:#2d3e50;\">Gas Bill Payment</h2><label for=\"gas-bill\">Enter Gas Bill Amount ($):</label><input type=\"number\" id=\"gas-bill\" min=\"0\" step=\"0.01\" placeholder=\"e.g. 60.25\"><button type=\"button\" onclick=\"showBill('gas')\">Pay Gas Bill</button><div class=\"result\" id=\"gas-result\"></div></form><div id=\"welcome-message\"><h2>Welcome to the Utility Bill Payment Portal</h2><p>Please select a utility from the navigation bar or sidebar to begin.</p></div></div></div><script>function hideAllForms(){document.getElementById('electric-form').style.display='none';document.getElementById('water-form').style.display='none';document.getElementById('trash-form').style.display='none';document.getElementById('gas-form').style.display='none';document.getElementById('welcome-message').style.display='none';}function showSection(section){hideAllForms();if(section==='electric'){document.getElementById('electric-form').style.display='block';}else if(section==='water'){document.getElementById('water-form').style.display='block';}else if(section==='trash'){document.getElementById('trash-form').style.display='block';}else if(section==='gas'){document.getElementById('gas-form').style.display='block';}else{document.getElementById('welcome-message').style.display='block';}}function showBill(type){var input=document.getElementById(type+'-bill');var result=document.getElementById(type+'-result');var value=input.value?parseFloat(input.value).toFixed(2):'0.00';result.textContent='Payment of $'+value+' for '+type.charAt(0).toUpperCase()+type.slice(1)+' Bill submitted.';}showSection();<\/script>`}</div>`;
+          }
+          // Animate out current main content
+          main.style.opacity = 0;
+          setTimeout(() => {
+            main.innerHTML = utilityHtml;
+            main.style.opacity = 1;
+          }, 400);
+        } else {
+          // Restore original main content (refresh page for demo)
+          showToast('Switching to ' + portal.charAt(0).toUpperCase() + portal.slice(1) + ' Portal...');
+          location.reload();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
