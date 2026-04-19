@@ -4,19 +4,21 @@ import json
 import logging
 import os
 import uuid
+from pathlib import Path
 from typing import AsyncGenerator
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 try:
-    from .automation import run_automation, PORTAL_REGISTRY
+    from .automation import run_automation, PORTAL_REGISTRY, validate_portal_profile
     from .llm_parser import extract_intent
 except ImportError:
-    from automation import run_automation, PORTAL_REGISTRY
+    from automation import run_automation, PORTAL_REGISTRY, validate_portal_profile
     from llm_parser import extract_intent
 
 # ──────────────────────────────────────────────
@@ -40,6 +42,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Serve local frontend assets at /frontend for simple browser access in dev/demo.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+FRONTEND_DIR = PROJECT_ROOT / "frontend"
+if FRONTEND_DIR.exists():
+    app.mount("/frontend", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
+
+DUMMY_PORTAL_DIR = PROJECT_ROOT / "dummy_portal"
+if DUMMY_PORTAL_DIR.exists():
+    app.mount("/demo-portals", StaticFiles(directory=str(DUMMY_PORTAL_DIR), html=True), name="demo-portals")
+
 # ──────────────────────────────────────────────
 # In-memory session store  (Feature #6)
 # ──────────────────────────────────────────────
@@ -51,6 +63,7 @@ SESSION_STORE: dict[str, dict] = {}
 # Keyed by request_id so each request streams independently
 # ──────────────────────────────────────────────
 SSE_QUEUES: dict[str, asyncio.Queue] = {}
+DEMO_SSE_QUEUES: set[asyncio.Queue] = set()
 
 
 # ──────────────────────────────────────────────
@@ -132,6 +145,40 @@ async def push_status(request_id: str, step: str, detail: str = ""):
         log.info(f"[{request_id[:8]}] STATUS → {step}")
 
 
+async def push_demo_event(portal: str, step: str, detail: str = "", request_id: str = ""):
+    """Broadcast live automation steps to any open dummy portal pages."""
+    if not DEMO_SSE_QUEUES:
+        return
+
+    event = {
+        "type": "demo_step",
+        "portal": portal,
+        "step": step,
+        "detail": detail,
+        "request_id": request_id,
+    }
+
+    dead: list[asyncio.Queue] = []
+    for q in tuple(DEMO_SSE_QUEUES):
+        try:
+            q.put_nowait(event)
+        except Exception:
+            dead.append(q)
+
+    for q in dead:
+        DEMO_SSE_QUEUES.discard(q)
+
+
+async def demo_sse_generator(queue: asyncio.Queue) -> AsyncGenerator[str, None]:
+    while True:
+        try:
+            event = await asyncio.wait_for(queue.get(), timeout=25)
+            yield f"data: {json.dumps(event)}\n\n"
+        except asyncio.TimeoutError:
+            # Keep-alive event so browser EventSource stays connected.
+            yield "data: {\"type\":\"ping\"}\n\n"
+
+
 # ──────────────────────────────────────────────
 # Main endpoint
 # ──────────────────────────────────────────────
@@ -148,6 +195,7 @@ async def process_voice(req: VoiceRequest, request: Request):
     try:
         # ── Step 1: Parse intent ──────────────────────────────────
         await push_status(request_id, "🧠 Understanding your request…")
+        await push_demo_event(req.portal, "🧠 Understanding your request…", request_id=request_id)
         intent = extract_intent(req.transcript, portal=req.portal, session_id=req.session_id, session_store=SESSION_STORE)
 
         if not intent or intent.get("intent") == "unknown":
@@ -159,24 +207,65 @@ async def process_voice(req: VoiceRequest, request: Request):
 
         log.info(f"[{request_id[:8]}] Intent extracted: {intent}")
 
+        effective_portal = intent.get("portal") or req.portal
+        if effective_portal != req.portal:
+            log.info(
+                f"[{request_id[:8]}] Portal reroute | requested={req.portal} | inferred={effective_portal}"
+            )
+
         # ── Check for "repeat last" shortcut (Feature #6) ──────────
-        if intent.get("repeat_last") and req.session_id in SESSION_STORE:
-            intent = SESSION_STORE[req.session_id]
-            log.info(f"[{request_id[:8]}] Using session memory: {intent}")
+        if intent.get("repeat_last") or intent.get("intent") == "repeat_last":
+            if req.session_id in SESSION_STORE:
+                intent = SESSION_STORE[req.session_id]
+                effective_portal = intent.get("portal") or req.portal
+                log.info(f"[{request_id[:8]}] Using session memory: {intent}")
+            else:
+                await push_status(request_id, "ℹ️ No previous action found for this session.")
+                return VoiceResponse(
+                    success=False,
+                    message="I don't have a previous request in this session yet.",
+                )
 
         # ── Step 2: Automation ────────────────────────────────────
-        await push_status(request_id, "🌐 Opening the portal…")
-        await asyncio.sleep(0.3)  # Let SSE flush
-        await push_status(request_id, "📝 Filling in your details…", f"Portal: {req.portal}")
+        await push_status(request_id, "🌐 Starting browser automation…", f"Portal: {effective_portal}")
+        await push_demo_event(
+            effective_portal,
+            "🌐 Starting browser automation…",
+            f"Portal: {effective_portal}",
+            request_id=request_id,
+        )
 
-        screenshot_b64 = await asyncio.to_thread(run_automation, intent, req.portal)
+        loop = asyncio.get_running_loop()
+
+        def thread_step(step: str, detail: str = ""):
+            q = SSE_QUEUES.get(request_id)
+            if not q:
+                return
+            loop.call_soon_threadsafe(
+                q.put_nowait,
+                {"type": "status", "step": step, "detail": detail},
+            )
+            loop.call_soon_threadsafe(
+                lambda: asyncio.create_task(
+                    push_demo_event(effective_portal, step, detail, request_id=request_id)
+                )
+            )
+
+        screenshot_b64 = await asyncio.to_thread(
+            run_automation,
+            intent,
+            effective_portal,
+            thread_step,
+        )
 
         await push_status(request_id, "✅ Task completed!")
+        await push_demo_event(effective_portal, "✅ Task completed!", request_id=request_id)
 
         # ── Step 3: Build success message ────────────────────────
-        summary = _build_summary(intent, req.portal)
+        summary = _build_summary(intent, effective_portal)
 
         # ── Step 4: Save to session (Feature #6) ─────────────────
+        intent["portal"] = effective_portal
         SESSION_STORE[req.session_id] = intent
         log.info(f"[{request_id[:8]}] Session saved for '{req.session_id}'")
 
@@ -218,10 +307,43 @@ async def status_stream(request_id: str):
     )
 
 
+@app.get("/demo-stream")
+async def demo_stream():
+    """SSE endpoint used by dummy portal pages for live visual step playback."""
+    queue: asyncio.Queue = asyncio.Queue(maxsize=200)
+    DEMO_SSE_QUEUES.add(queue)
+
+    async def stream():
+        try:
+            async for chunk in demo_sse_generator(queue):
+                yield chunk
+        finally:
+            DEMO_SSE_QUEUES.discard(queue)
+
+    return StreamingResponse(
+        stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
 @app.get("/portals")
 async def list_portals():
     """Return available portals for the frontend dropdown (Feature #5)."""
     return {"portals": list(PORTAL_REGISTRY.keys())}
+
+
+@app.get("/automation/validate/{portal}")
+async def validate_automation_profile(portal: str):
+    """Validate configured URL/selector profile for a portal."""
+    try:
+        result = await asyncio.to_thread(validate_portal_profile, portal)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        log.error("Profile validation failed for portal '%s': %s", portal, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Profile validation failed")
 
 
 @app.get("/session/{session_id}")

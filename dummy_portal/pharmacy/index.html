@@ -1,317 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RxDirect Patient Pharmacy Portal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RxDirect Refill Portal</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; background: #f0f0e8; color: #222; }
-
-    .top-strip { background: #8b0000; color: #fff; padding: 2px 12px; font-size: 10px; display: flex; justify-content: space-between; }
-    .top-strip a { color: #ffaaaa; }
-
-    .header { background: #fff; border-bottom: 4px solid #8b0000; padding: 0; }
-    .header-inner { display: flex; align-items: stretch; }
-    .header-logo { background: #8b0000; padding: 10px 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 140px; }
-    .header-logo .rx { font-size: 30px; font-weight: 900; color: #fff; font-style: italic; letter-spacing: -2px; }
-    .header-logo .sub { color: #ffcccc; font-size: 8px; letter-spacing: 1px; text-transform: uppercase; }
-    .header-middle { padding: 8px 14px; flex: 1; }
-    .header-middle h1 { font-size: 15px; color: #8b0000; font-weight: bold; margin-bottom: 2px; }
-    .header-middle p { font-size: 10px; color: #666; }
-    .header-right { background: #f5f5f0; padding: 8px 14px; text-align: right; font-size: 10px; color: #555; border-left: 1px solid #ddd; min-width: 160px; display: flex; flex-direction: column; justify-content: center; }
-
-    .nav { background: #333; display: flex; flex-wrap: wrap; }
-    .nav a { color: #ddd; text-decoration: none; padding: 7px 13px; font-size: 11px; border-right: 1px solid #444; white-space: nowrap; }
-    .nav a:hover { background: #555; }
-    .nav a.active { background: #8b0000; color: #fff; }
-
-    .alert-bar { background: #fff3cd; border-bottom: 1px solid #e0a800; padding: 5px 12px; font-size: 11px; color: #856404; }
-    .alert-bar a { color: #856404; font-weight: bold; }
-
-    .layout { display: flex; min-height: calc(100vh - 140px); }
-    .sidebar { width: 180px; min-width: 180px; background: #e8e8e0; border-right: 1px solid #ccc; }
-    .sidebar h3 { background: #8b0000; color: #fff; font-size: 11px; padding: 5px 8px; margin-top: 0; }
-    .sidebar h3+h3 { margin-top: 8px; }
-    .sidebar a { display: block; padding: 5px 12px; font-size: 11px; color: #333; text-decoration: none; border-bottom: 1px solid #d8d8d0; }
-    .sidebar a:hover { background: #d8d8d0; }
-    .sidebar a.active { color: #8b0000; font-weight: bold; background: #fff; }
-    .sidebar .refill-count { background: #8b0000; color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 10px; float: right; }
-
-    .main { flex: 1; padding: 12px; }
-    .crumb { font-size: 10px; color: #777; margin-bottom: 10px; }
-    .crumb a { color: #8b0000; }
-
-    .box { background: #fff; border: 1px solid #ccc; margin-bottom: 12px; }
-    .box-head { background: linear-gradient(to bottom, #8b0000, #6b0000); color: #fff; padding: 5px 10px; font-size: 12px; font-weight: bold; }
-    .box-body { padding: 12px; }
-
-    .rx-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 14px; }
-    .rx-table th { background: #e8e8e0; padding: 5px 8px; text-align: left; border: 1px solid #ccc; font-size: 10px; text-transform: uppercase; color: #555; }
-    .rx-table td { padding: 5px 8px; border: 1px solid #ddd; vertical-align: middle; }
-    .rx-table tr:nth-child(even) { background: #f9f9f5; }
-    .status-ok { color: green; font-weight: bold; }
-    .status-low { color: #e67e22; font-weight: bold; }
-    .status-expired { color: #c0392b; font-weight: bold; }
-
-    .form-section { border: 1px solid #ccc; padding: 12px; background: #fafaf5; margin-bottom: 12px; }
-    .form-section h3 { font-size: 12px; color: #8b0000; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", Tahoma, sans-serif; background: #f5f2ef; color: #2c2a28; }
+    .top { background: #7f1f1f; color: #f8dddd; padding: 8px 14px; font-size: 12px; display: flex; justify-content: space-between; }
+    .wrap { max-width: 1020px; margin: 16px auto; padding: 0 12px 20px; }
+    .hero { background: linear-gradient(135deg, #8d2525, #b13636); color: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 8px 22px rgba(92, 20, 20, 0.27); }
+    .hero h1 { font-size: 24px; margin-bottom: 6px; }
+    .hero p { color: #ffe3e3; font-size: 13px; }
+    .card { background: #fff; border: 1px solid #e9dfdd; border-radius: 12px; box-shadow: 0 4px 14px rgba(72, 30, 30, 0.08); }
+    .card h3 { border-bottom: 1px solid #f2e9e7; padding: 11px 14px; font-size: 13px; color: #7f3535; text-transform: uppercase; }
+    .body { padding: 14px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .field { margin-bottom: 10px; }
-    .field label { display: block; font-size: 11px; font-weight: bold; color: #444; margin-bottom: 3px; }
-    .field label .req { color: #c0392b; }
-    .field input, .field select { border: 1px solid #aaa; padding: 4px 6px; font-size: 12px; width: 100%; max-width: 300px; font-family: Arial; }
-    .field input:focus, .field select:focus { outline: 2px solid #8b0000; }
-    .field .hint { font-size: 10px; color: #888; margin-top: 2px; }
-    .field-row { display: flex; gap: 12px; flex-wrap: wrap; }
-    .field-row .field { flex: 1; min-width: 140px; }
-
-    .insurance-box { background: #fff8f0; border: 1px solid #e67e22; padding: 8px 10px; font-size: 11px; margin-bottom: 10px; }
-    .insurance-box strong { color: #c0392b; }
-
-    .btn { padding: 5px 16px; font-size: 12px; font-family: Arial; cursor: pointer; border: 1px solid; }
-    .btn-red { background: linear-gradient(to bottom, #c0392b, #922b21); color: #fff; border-color: #7b241c; }
-    .btn-red:hover { background: linear-gradient(to bottom, #a93226, #7b241c); }
-    .btn-grey { background: linear-gradient(to bottom, #95a5a6, #717d7e); color: #fff; border-color: #5d6d7e; }
-    .btn-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
-
-    .disclaimer { font-size: 10px; color: #888; line-height: 1.6; margin-top: 8px; border-top: 1px dashed #ccc; padding-top: 8px; }
-
-    footer { background: #333; color: #aaa; font-size: 10px; padding: 8px 12px; text-align: center; }
-    footer a { color: #ccc; }
+    .field label { display: block; font-size: 12px; margin-bottom: 4px; color: #744848; font-weight: 600; }
+    .field input, .field select { width: 100%; border: 1px solid #dccaca; border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+    .btn { border: 1px solid transparent; border-radius: 8px; padding: 8px 12px; font-size: 12px; cursor: pointer; font-weight: 700; }
+    .btn-main { background: #af2b2b; color: #fff; border-color: #7d1f1f; }
+    .actions { display: flex; align-items: center; gap: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #f1e8e6; }
+    th { font-size: 11px; color: #8a6666; text-transform: uppercase; }
+    .pill { border-radius: 999px; padding: 3px 8px; font-size: 10px; font-weight: 700; }
+    .ok { background: #ddf4e3; color: #21673a; }
+    .warn { background: #fff0d7; color: #94641c; }
   </style>
 </head>
 <body>
-
-<div class="top-strip">
-  <span>RxDirect Pharmacy Management System v2.1 | Member Portal | Powered by MedPharm Solutions LLC</span>
-  <span>Patient: <strong>XXXXXXXXXX</strong> | <a href="#">Profile</a> | <a href="#">Log Out</a> | Session: <span id="sess">14:32</span></span>
-</div>
-
-<div class="header">
-  <div class="header-inner">
-    <div class="header-logo">
-      <div class="rx">Rx<span style="font-size:14px;font-style:normal;">Direct</span></div>
-      <div class="sub">Patient Portal</div>
-    </div>
-    <div class="header-middle">
-      <h1>RxDirect Prescription Management &amp; Refill Center</h1>
-      <p>Manage your prescriptions, request refills, check status, and review medication history</p>
-    </div>
-    <div class="header-right">
-      <div><strong>Member ID:</strong> RXD-000-XXXXX</div>
-      <div style="margin:3px 0"><strong>Plan:</strong> ValleyCare Rx Tier 2</div>
-      <div><strong>Refills remaining:</strong> <span style="color:#27ae60;font-weight:bold">8</span> (plan year)</div>
-    </div>
+  <div class="top">
+    <span>RxDirect | Refill Management</span>
+    <span>Patient Session: Active</span>
   </div>
-</div>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Prescription Refills</h1>
+      <p>Realtime demo portal for submitting and tracking refill orders.</p>
+    </section>
 
-<div class="nav">
-  <a href="#" class="active">My Prescriptions</a>
-  <a href="#">Request Refill</a>
-  <a href="#">Order Status</a>
-  <a href="#">Medication History</a>
-  <a href="#">Drug Interactions</a>
-  <a href="#">Insurance &amp; Coverage</a>
-  <a href="#">Billing</a>
-  <a href="#">Transfer Rx</a>
-  <a href="#">Contact Pharmacist</a>
-  <a href="#">FAQs</a>
-</div>
+    <section class="card" style="margin-bottom:12px;">
+      <h3>Submit Refill Request</h3>
+      <div class="body">
+        <div class="row">
+          <div class="field"><label>Medication</label><input id="medication-input" type="text" placeholder="e.g. lisinopril" /></div>
+          <div class="field"><label>Days Supply</label><input id="quantity-input" type="number" min="30" max="90" step="30" placeholder="30 / 60 / 90" /></div>
+        </div>
+        <div class="field"><label>Delivery</label><select><option>Mail Order</option><option>Retail Pickup</option></select></div>
+        <div class="actions">
+          <button id="refill-btn" class="btn btn-main" onclick="submitRefill()">Submit Refill</button>
+          <span style="font-size:11px;color:#8f6f6f;">Automation IDs: #medication-input #quantity-input #refill-btn</span>
+        </div>
+      </div>
+    </section>
 
-<div class="alert-bar">
-  ⚠ <strong>Action Required:</strong> 2 prescriptions are due for renewal — your prescriber must authorize a new prescription before refills can be processed. <a href="#">View Details →</a>
-</div>
-
-<div class="layout">
-  <div class="sidebar">
-    <h3>QUICK ACTIONS</h3>
-    <a href="#" class="active">▶ Request Refill <span class="refill-count">3</span></a>
-    <a href="#">Check Refill Status</a>
-    <a href="#">Set Auto-Refill</a>
-    <a href="#">Manage Delivery</a>
-    <h3>MY ACCOUNT</h3>
-    <a href="#">Shipping Address</a>
-    <a href="#">Payment Methods</a>
-    <a href="#">Insurance Cards</a>
-    <a href="#">Notification Settings</a>
-    <a href="#">Download Records</a>
-    <h3>HELP</h3>
-    <a href="#">Pharmacist Chat</a>
-    <a href="#">Drug Information</a>
-    <a href="#">Tier Formulary</a>
-    <a href="#">Prior Auth Status</a>
-    <div style="padding:8px;font-size:10px;color:#666;line-height:1.5;border-top:1px solid #ccc;margin-top:6px;">
-      <strong>24-Hr Pharmacy Line:</strong><br>
-      1-800-555-7299<br><br>
-      <strong>Delivery Questions:</strong><br>
-      1-800-555-7300
-    </div>
-  </div>
-
-  <div class="main">
-    <div class="crumb"><a href="#">Home</a> › <a href="#">My Prescriptions</a> › <span>Request Refill</span></div>
-
-    <!-- Active prescriptions table -->
-    <div class="box">
-      <div class="box-head">💊 Active Prescriptions on File</div>
-      <div class="box-body">
-        <table class="rx-table">
-          <tr>
-            <th>Rx #</th>
-            <th>Medication</th>
-            <th>Dosage</th>
-            <th>Prescriber</th>
-            <th>Refills Left</th>
-            <th>Last Filled</th>
-            <th>Status</th>
-          </tr>
-          <tr>
-            <td>RX-8821-44</td>
-            <td><strong>Lisinopril</strong> (Zestril)</td>
-            <td>10mg — 1x daily</td>
-            <td>Dr. Patterson</td>
-            <td>3</td>
-            <td>03/18/2026</td>
-            <td class="status-ok">✔ Active</td>
-          </tr>
-          <tr>
-            <td>RX-9104-21</td>
-            <td><strong>Metformin HCl</strong></td>
-            <td>500mg — 2x daily</td>
-            <td>Dr. Patterson</td>
-            <td>1</td>
-            <td>02/28/2026</td>
-            <td class="status-low">⚠ Refills Low</td>
-          </tr>
-          <tr>
-            <td>RX-7733-09</td>
-            <td><strong>Atorvastatin</strong> (Lipitor)</td>
-            <td>20mg — 1x daily at bedtime</td>
-            <td>Dr. Nguyen</td>
-            <td>0</td>
-            <td>01/15/2026</td>
-            <td class="status-expired">✕ Renewal Needed</td>
-          </tr>
-          <tr>
-            <td>RX-8205-66</td>
-            <td><strong>Amlodipine</strong></td>
-            <td>5mg — 1x daily</td>
-            <td>Dr. Patterson</td>
-            <td>5</td>
-            <td>03/20/2026</td>
-            <td class="status-ok">✔ Active</td>
-          </tr>
+    <section class="card">
+      <h3>Recent Refill Orders</h3>
+      <div class="body">
+        <table>
+          <thead><tr><th>Confirmation</th><th>Medication</th><th>Supply</th><th>Status</th><th>ETA</th></tr></thead>
+          <tbody id="refill-body"></tbody>
         </table>
-        <p style="font-size:10px;color:#888;">Showing 4 of 4 active prescriptions. <a href="#" style="color:#8b0000">View full history →</a></p>
       </div>
-    </div>
-
-    <!-- Refill request form -->
-    <div class="box">
-      <div class="box-head">🔄 Request a Prescription Refill</div>
-      <div class="box-body">
-
-        <div class="insurance-box">
-          <strong>⚠ Insurance Note:</strong> Your plan (ValleyCare Rx Tier 2) requires that maintenance medications be filled in 90-day supplies via mail-order after the first two fills. Retail 30-day fills may result in higher copay ($45 vs. $12 mail-order). <a href="#" style="color:#8b0000">See formulary →</a>
-        </div>
-
-        <div class="form-section">
-          <h3>Step 1: Identify Your Medication</h3>
-          <div class="field-row">
-            <div class="field">
-              <label>Medication Name <span class="req">*</span></label>
-              <input type="text" id="medication-input" placeholder="e.g. lisinopril">
-              <div class="hint">Enter generic or brand name. Must match a prescription on file.</div>
-            </div>
-            <div class="field">
-              <label>Rx Number (optional)</label>
-              <input type="text" placeholder="e.g. RX-8821-44">
-              <div class="hint">Found on your medication bottle label.</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3>Step 2: Supply &amp; Delivery</h3>
-          <div class="field-row">
-            <div class="field">
-              <label>Days Supply Requested <span class="req">*</span></label>
-              <input type="number" id="quantity-input" placeholder="e.g. 90" min="30" max="90" step="30">
-              <div class="hint">30, 60, or 90 days. 90-day supply recommended (mail-order savings).</div>
-            </div>
-            <div class="field">
-              <label>Fulfillment Method <span class="req">*</span></label>
-              <select>
-                <option>-- Select Method --</option>
-                <option selected>Mail-Order Delivery (7–10 business days)</option>
-                <option>Retail Pickup — ValleyCare Pharmacy</option>
-                <option>Express Mail (additional fee)</option>
-              </select>
-            </div>
-          </div>
-          <div class="field">
-            <label>Delivery Address</label>
-            <select>
-              <option>Address on File: 123 Main St, Anytown KY 41001</option>
-              <option>Use a different address...</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3>Step 3: Clinical Information</h3>
-          <div class="field-row">
-            <div class="field">
-              <label>Any changes to condition or dosage since last fill?</label>
-              <select>
-                <option>No — same condition and dose</option>
-                <option>Yes — my doctor changed my dose</option>
-                <option>Yes — new prescriber</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Allergies / Reactions (update if changed)</label>
-              <input type="text" placeholder="e.g. Penicillin, sulfa drugs" value="NKDA (no known allergies)">
-            </div>
-          </div>
-          <div class="field">
-            <label style="font-weight:normal;font-size:10px;display:flex;gap:6px;align-items:flex-start;">
-              <input type="checkbox" checked style="margin-top:2px;width:auto">
-              <span>I confirm this medication is for my own personal use. I understand that prescription medications cannot be shared, sold, or transferred. I authorize RxDirect to bill my insurance plan on file and agree to pay any applicable copays or cost-sharing amounts.</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="btn-row">
-          <button id="refill-btn" class="btn btn-red" onclick="submitRefill()">Submit Refill Request →</button>
-          <button class="btn btn-grey">Clear Form</button>
-          <span style="font-size:10px;color:#888;">Processing: 1–2 business days. Mail delivery: 7–10 business days.</span>
-        </div>
-
-        <div class="disclaimer">
-          <strong>Important:</strong> Submitting this request does not guarantee dispensing. Your pharmacist will review this request for clinical appropriateness and insurance authorization. If your prescription has expired or requires prior authorization, you will be notified by email or phone within 2 business days.
-        </div>
-      </div>
-    </div>
+    </section>
   </div>
-</div>
 
-<footer>
-  RxDirect &copy; 2026 | Powered by MedPharm Solutions LLC | HIPAA Compliant | <a href="#">Privacy Policy</a> | <a href="#">Terms</a> | v2.1.4
-</footer>
-
-<script>
-  let s = 872;
-  setInterval(() => {
-    if (s > 0) s--;
-    document.getElementById('sess').textContent = Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
-  }, 1000);
-
-  function submitRefill() {
-    const med = document.getElementById('medication-input').value;
-    const qty = document.getElementById('quantity-input').value;
-    window.location.href = 'success.html?medication=' + encodeURIComponent(med) + '&quantity=' + encodeURIComponent(qty);
-  }
-</script>
+  <script src="app.js"></script>
 </body>
 </html>

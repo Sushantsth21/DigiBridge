@@ -3,331 +3,458 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CityConnect Utility Services — Online Bill Payment</title>
+  <title>CityConnect Utility Services - Billing Portal</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Verdana, Geneva, sans-serif; font-size: 12px; background: #e8ecf0; color: #222; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", Tahoma, sans-serif; background: #eef3f7; color: #1d2c3c; }
 
-    .gov-strip { background: #1a3a5c; color: #fff; padding: 2px 10px; font-size: 10px; font-family: Arial; display: flex; justify-content: space-between; }
-    .gov-strip a { color: #aac0d8; }
-
-    .header { background: #fff; }
-    .header-top { background: linear-gradient(135deg, #1a3a5c 0%, #2c5f8a 60%, #1a3a5c 100%); padding: 10px 14px; display: flex; align-items: center; gap: 14px; }
-    .city-seal {
-      width: 52px; height: 52px; border-radius: 50%;
-      background: radial-gradient(circle, #f0c040 0%, #d4a017 50%, #1a3a5c 51%, #1a3a5c 100%);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; flex-shrink: 0; border: 3px solid #f0c040;
+    .topbar {
+      background: linear-gradient(90deg, #0d355a, #1f537f);
+      color: #d8e7f5;
+      font-size: 12px;
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .header-text h1 { color: #fff; font-size: 16px; font-family: "Times New Roman"; }
-    .header-text p { color: #aac0d8; font-size: 10px; font-family: Arial; }
-    .header-contact { margin-left: auto; text-align: right; color: #aac0d8; font-size: 10px; font-family: Arial; }
-    .header-contact strong { color: #f0c040; }
 
-    .nav { background: #2c5f8a; display: flex; flex-wrap: wrap; border-bottom: 3px solid #f0c040; }
-    .nav a { color: #dde8f0; text-decoration: none; padding: 7px 13px; font-size: 11px; font-family: Arial; border-right: 1px solid #3a6f9a; white-space: nowrap; }
-    .nav a:hover { background: #1a3a5c; }
-    .nav a.active { background: #f0c040; color: #1a3a5c; font-weight: bold; }
+    .page {
+      max-width: 1120px;
+      margin: 16px auto;
+      padding: 0 12px 28px;
+    }
 
-    .notice-bar { background: #fef3cd; border-bottom: 2px solid #f0c040; padding: 5px 12px; font-size: 11px; color: #7d5a00; font-family: Arial; }
+    .hero {
+      background: linear-gradient(135deg, #17456f, #2a6ea2);
+      color: #fff;
+      border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: 0 8px 28px rgba(12, 42, 68, 0.22);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
 
-    .layout { display: flex; min-height: calc(100vh - 160px); }
-    .sidebar { width: 175px; min-width: 175px; background: #dde8f0; border-right: 2px solid #aab8c8; }
-    .sidebar h3 { background: #1a3a5c; color: #f0c040; font-size: 10px; font-family: Arial; padding: 5px 8px; text-transform: uppercase; letter-spacing: 1px; }
-    .sidebar a { display: block; padding: 5px 10px 5px 14px; font-size: 11px; font-family: Arial; color: #1a3a5c; text-decoration: none; border-bottom: 1px solid #c8d8e8; }
-    .sidebar a:hover { background: #c8d8e8; }
-    .sidebar a.active { font-weight: bold; background: #fff; color: #c0392b; }
+    .hero h1 { font-size: 22px; margin-bottom: 6px; }
+    .hero p { color: #d6e8f7; font-size: 13px; }
 
-    .main { flex: 1; padding: 12px; }
-    .crumb { font-size: 10px; color: #666; font-family: Arial; margin-bottom: 10px; }
-    .crumb a { color: #2c5f8a; }
+    .hero-actions { display: flex; gap: 8px; }
 
-    .box { background: #fff; border: 1px solid #b8c8d8; margin-bottom: 12px; }
-    .box-head { background: linear-gradient(to bottom, #2c5f8a, #1a3a5c); color: #fff; padding: 6px 10px; font-size: 12px; font-family: Arial; font-weight: bold; }
-    .box-body { padding: 12px; }
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
 
-    .account-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
-    .acct-card { background: #f0f5fa; border: 1px solid #b8c8d8; padding: 8px 10px; text-align: center; }
-    .acct-card .label { font-size: 9px; color: #666; font-family: Arial; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .acct-card .value { font-size: 16px; font-weight: bold; font-family: "Times New Roman"; color: #1a3a5c; }
-    .acct-card .value.due { color: #c0392b; }
-    .acct-card .value.paid { color: #27ae60; }
-    .acct-card .sub-label { font-size: 9px; color: #888; margin-top: 2px; }
+    .btn-light { background: #eaf4ff; color: #1d4f7d; border-color: #9ec1df; }
+    .btn-primary { background: #e7b73d; color: #2c2a1f; border-color: #bd8d1a; }
 
-    .bill-table { width: 100%; border-collapse: collapse; font-size: 11px; font-family: Arial; }
-    .bill-table th { background: #dde8f0; padding: 5px 8px; text-align: left; border: 1px solid #b8c8d8; font-size: 10px; text-transform: uppercase; color: #444; }
-    .bill-table td { padding: 5px 8px; border: 1px solid #dde8f0; }
-    .bill-table tr:nth-child(even) { background: #f5f8fc; }
-    .bill-table tfoot td { background: #1a3a5c; color: #fff; font-weight: bold; }
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 14px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #d9e2ec;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(14, 40, 68, 0.07);
+    }
+
+    .card-header {
+      border-bottom: 1px solid #e6edf4;
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #264866;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-body { padding: 14px; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .summary-item {
+      background: #f7fbff;
+      border: 1px solid #d8e8f5;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .summary-item small {
+      display: block;
+      color: #5a738e;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .summary-item strong {
+      color: #183c5f;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
 
     .field { margin-bottom: 10px; }
-    .field label { display: block; font-size: 11px; font-weight: bold; color: #333; font-family: Arial; margin-bottom: 3px; }
-    .field label .req { color: #c0392b; }
-    .field input, .field select { border: 1px solid #aaa; padding: 4px 6px; font-size: 12px; width: 100%; max-width: 280px; font-family: Verdana; }
-    .field input:focus, .field select:focus { outline: 2px solid #2c5f8a; }
-    .field .hint { font-size: 10px; color: #888; margin-top: 2px; font-family: Arial; }
+    .field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #34526f;
+      margin-bottom: 4px;
+      display: block;
+    }
 
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 680px; }
-    .form-section { border: 1px solid #b8c8d8; padding: 12px; background: #f8fafc; margin-bottom: 12px; }
-    .form-section h3 { font-size: 12px; color: #1a3a5c; margin-bottom: 10px; font-family: Arial; border-bottom: 1px solid #dde8f0; padding-bottom: 4px; }
+    .field input {
+      width: 100%;
+      border: 1px solid #bcd0e2;
+      border-radius: 8px;
+      padding: 9px 10px;
+      font-size: 13px;
+      color: #1d2c3c;
+    }
 
-    .payment-methods { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-    .pay-method { border: 2px solid #b8c8d8; padding: 6px 12px; font-size: 11px; font-family: Arial; cursor: pointer; background: #f5f8fc; }
-    .pay-method.active { border-color: #2c5f8a; background: #dde8f0; font-weight: bold; color: #1a3a5c; }
+    .field input:focus {
+      border-color: #2f7cba;
+      outline: 2px solid #c7e3fb;
+      outline-offset: 0;
+    }
 
-    .security-note { background: #e8f5e9; border: 1px solid #81c784; padding: 7px 10px; font-size: 10px; font-family: Arial; color: #2e7d32; margin-bottom: 10px; }
+    .hint {
+      font-size: 11px;
+      color: #5f7d99;
+      margin-top: 4px;
+    }
 
-    .btn { padding: 5px 18px; font-size: 12px; font-family: Arial; cursor: pointer; border: 1px solid; }
-    .btn-blue { background: linear-gradient(to bottom, #2c5f8a, #1a3a5c); color: #fff; border-color: #0d2b47; }
-    .btn-blue:hover { background: linear-gradient(to bottom, #1a3a5c, #0d2b47); }
-    .btn-yellow { background: linear-gradient(to bottom, #f0c040, #d4a017); color: #1a3a5c; border-color: #a07810; font-weight: bold; }
-    .btn-grey { background: linear-gradient(to bottom, #95a5a6, #717d7e); color: #fff; border-color: #5d6d7e; }
-    .btn-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+    .quick {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 6px;
+    }
 
-    .legal { font-size: 10px; color: #888; font-family: Arial; line-height: 1.5; border-top: 1px dashed #ccc; padding-top: 8px; margin-top: 10px; }
+    .quick button {
+      border: 1px solid #b6cbe0;
+      background: #f0f7ff;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      color: #2b587f;
+    }
 
-    footer { background: #1a3a5c; color: #aac0d8; font-size: 10px; font-family: Arial; padding: 10px 12px; }
-    footer .footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 800px; margin-bottom: 8px; }
-    footer h4 { color: #f0c040; font-size: 10px; margin-bottom: 4px; }
-    footer a { color: #aac0d8; }
-    footer .copy { text-align: center; border-top: 1px solid #2c5f8a; padding-top: 6px; }
+    .methods {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .methods label {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      border: 1px solid #cad9e8;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #f9fcff;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .totals {
+      background: #f5fbf1;
+      border: 1px solid #cfe6bf;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .totals .row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .totals .grand {
+      font-weight: 700;
+      color: #245d2a;
+      border-top: 1px dashed #9ec19a;
+      padding-top: 6px;
+    }
+
+    .legal {
+      font-size: 11px;
+      color: #5e7388;
+      line-height: 1.5;
+      margin: 8px 0 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #pay-btn[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #e8edf2;
+      text-align: left;
+      padding: 8px 6px;
+      vertical-align: top;
+    }
+
+    th { color: #3c5d7c; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .status-pill {
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .status-pill.ok { background: #dbf5df; color: #1d6c2e; }
+
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      background: #1b3f64;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: 0.25s ease;
+      max-width: 360px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24);
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { background: #a42c2c; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 28, 44, 0.55);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .overlay .box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px;
+      width: min(90vw, 320px);
+      text-align: center;
+      border: 1px solid #d9e2ec;
+    }
+
+    .spinner {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 3px solid #d3e3f2;
+      border-top-color: #2f7cba;
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .hero { flex-direction: column; align-items: flex-start; }
+      .two-col { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-
-<div class="gov-strip">
-  <span>🏛 City of Valleyport | Official Municipal Services Portal | Version 4.2</span>
-  <span><a href="#">Accessibility</a> | <a href="#">Language / Idioma</a> | <a href="#">Site Map</a> | <strong id="date-time">—</strong></span>
-</div>
-
-<div class="header">
-  <div class="header-top">
-    <div class="city-seal">🏛</div>
-    <div class="header-text">
-      <h1>City of Valleyport — Utility Services</h1>
-      <p>Department of Public Works &amp; Utilities | Online Bill Payment Center</p>
-    </div>
-    <div class="header-contact">
-      <div><strong>Utility Billing:</strong> (555) 270-4400</div>
-      <div>Mon–Fri 8am–4:30pm</div>
-      <div style="margin-top:4px"><strong>After-Hours Emergency:</strong> (555) 270-4411</div>
-    </div>
-  </div>
-</div>
-
-<div class="nav">
-  <a href="#">Home</a>
-  <a href="#" class="active">Pay My Bill</a>
-  <a href="#">Account Summary</a>
-  <a href="#">Usage History</a>
-  <a href="#">Start / Stop Service</a>
-  <a href="#">Report Outage</a>
-  <a href="#">Budget Billing</a>
-  <a href="#">Assistance Programs</a>
-  <a href="#">Forms &amp; Applications</a>
-  <a href="#">Contact Us</a>
-</div>
-
-<div class="notice-bar">
-  ⚠ <strong>Notice:</strong> Due to infrastructure upgrades, online payments may experience a 48-hour processing delay. Your account will not be flagged for late fees during this period. <a href="#">Read full notice →</a>
-</div>
-
-<div class="layout">
-  <div class="sidebar">
-    <h3>MY ACCOUNT</h3>
-    <a href="#" class="active">▶ Pay Bill Online</a>
-    <a href="#">Account Overview</a>
-    <a href="#">Billing History</a>
-    <a href="#">Usage Details</a>
-    <a href="#">Paperless Billing</a>
-    <a href="#">AutoPay Setup</a>
-    <h3>SERVICES</h3>
-    <a href="#">Water &amp; Sewer</a>
-    <a href="#">Electric</a>
-    <a href="#">Stormwater Fee</a>
-    <a href="#">Trash Collection</a>
-    <h3>ASSISTANCE</h3>
-    <a href="#">LIHEAP Program</a>
-    <a href="#">Budget Billing</a>
-    <a href="#">Payment Plans</a>
-    <a href="#">Shutoff Protection</a>
-    <div style="padding:8px;font-size:10px;color:#555;font-family:Arial;line-height:1.6;border-top:1px solid #b8c8d8;margin-top:6px;">
-      <strong>Questions?</strong><br>
-      Utility Billing:<br>
-      <strong>(555) 270-4400</strong><br><br>
-      Monday–Friday<br>
-      8:00 AM – 4:30 PM
-    </div>
+  <div class="topbar">
+    <span>City of Valleyport Utility Services | Digital Billing Portal v5.1</span>
+    <span>Logged in as: <strong id="customer-name">Customer</strong></span>
   </div>
 
-  <div class="main">
-    <div class="crumb"><a href="#">Home</a> › <a href="#">Utility Services</a> › <a href="#">My Account</a> › <span>Pay Bill Online</span></div>
+  <div class="page">
+    <section class="hero">
+      <div>
+        <h1>Online Utility Billing & Payments</h1>
+        <p id="service-address">123 Main St, Valleyport, KY 41001</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-light" id="reset-state">Reset Demo Data</button>
+      </div>
+    </section>
 
-    <!-- Account summary cards -->
-    <div class="account-summary">
-      <div class="acct-card">
-        <div class="label">Account #</div>
-        <div class="value" style="font-size:13px;">VPU-441-8820</div>
-        <div class="sub-label">Service Address: 123 Main St</div>
-      </div>
-      <div class="acct-card">
-        <div class="label">Current Balance</div>
-        <div class="value due">$142.50</div>
-        <div class="sub-label">Due: May 5, 2026</div>
-      </div>
-      <div class="acct-card">
-        <div class="label">Last Payment</div>
-        <div class="value paid">$138.20</div>
-        <div class="sub-label">Paid: Apr 3, 2026</div>
-      </div>
-      <div class="acct-card">
-        <div class="label">Avg Monthly Bill</div>
-        <div class="value">$135.80</div>
-        <div class="sub-label">Based on 12-month avg</div>
-      </div>
-    </div>
-
-    <!-- Current bill breakdown -->
-    <div class="box">
-      <div class="box-head">🧾 Current Bill — Statement Period: March 15 – April 14, 2026</div>
-      <div class="box-body">
-        <table class="bill-table">
-          <tr><th>Service</th><th>Meter / Account</th><th>Usage</th><th>Rate</th><th>Amount</th></tr>
-          <tr><td>Water Supply</td><td>MTR-8820-W</td><td>4,200 gallons</td><td>$0.0148/gal</td><td>$62.16</td></tr>
-          <tr><td>Sewer / Wastewater</td><td>MTR-8820-W</td><td>4,200 gallons</td><td>$0.0089/gal</td><td>$37.38</td></tr>
-          <tr><td>Stormwater Management Fee</td><td>Fixed</td><td>—</td><td>$8.00/month</td><td>$8.00</td></tr>
-          <tr><td>Trash &amp; Recycling Collection</td><td>Fixed</td><td>1x weekly</td><td>$18.50/month</td><td>$18.50</td></tr>
-          <tr><td>Infrastructure Surcharge</td><td>Fixed</td><td>—</td><td>$6.00/month</td><td>$6.00</td></tr>
-          <tr><td>State Utility Tax (3.5%)</td><td>—</td><td>—</td><td>—</td><td>$4.62</td></tr>
-          <tr><td>City Franchise Fee (1.5%)</td><td>—</td><td>—</td><td>—</td><td>$1.98</td></tr>
-          <tr><td colspan="4">Prior Balance</td><td>$3.86</td></tr>
-          <tfoot><tr><td colspan="4"><strong>TOTAL AMOUNT DUE</strong></td><td><strong>$142.50</strong></td></tr></tfoot>
-        </table>
-        <p style="font-size:10px;color:#888;margin-top:6px;font-family:Arial;">
-          Questions about your bill? Call <strong>(555) 270-4400</strong> or visit <a href="#" style="color:#2c5f8a">our office</a> at City Hall, Room 104.
-        </p>
-      </div>
-    </div>
-
-    <!-- Payment form -->
-    <div class="box">
-      <div class="box-head">💳 Make a Payment</div>
-      <div class="box-body">
-
-        <div class="form-section">
-          <h3>Step 1 — Select Payment Amount</h3>
-          <div class="two-col">
-            <div>
-              <div class="field">
-                <label>Payment Amount <span class="req">*</span></label>
-                <input type="text" id="amount-input" placeholder="e.g. 142.50" value="142.50">
-                <div class="hint">Current balance due: <strong>$142.50</strong>. You may pay any amount up to $500. Partial payments accepted.</div>
-              </div>
+    <div class="layout">
+      <aside class="card">
+        <div class="card-header">Account Snapshot</div>
+        <div class="card-body">
+          <div class="summary-grid">
+            <div class="summary-item">
+              <small>Account Number</small>
+              <strong id="sum-account">VPU-441-8820</strong>
             </div>
-            <div>
-              <div class="field">
-                <label>Quick Pay Options</label>
-                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
-                  <button class="btn btn-blue" style="font-size:10px;padding:3px 8px;" onclick="document.getElementById('amount-input').value='142.50'">Full Balance $142.50</button>
-                  <button class="btn btn-grey" style="font-size:10px;padding:3px 8px;" onclick="document.getElementById('amount-input').value='71.25'">Half $71.25</button>
-                  <button class="btn btn-grey" style="font-size:10px;padding:3px 8px;" onclick="document.getElementById('amount-input').value=''">Other Amount</button>
+            <div class="summary-item">
+              <small>Current Balance</small>
+              <strong id="sum-balance">$142.50</strong>
+            </div>
+            <div class="summary-item">
+              <small>Due Date</small>
+              <strong id="sum-due">May 5, 2026</strong>
+            </div>
+            <div class="summary-item">
+              <small>Paid This Cycle</small>
+              <strong id="sum-paid-cycle">$138.20</strong>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main>
+        <section class="card" style="margin-bottom: 12px;">
+          <div class="card-header">Make a Payment</div>
+          <div class="card-body">
+            <div class="two-col">
+              <div>
+                <div class="field">
+                  <label for="amount-input">Payment Amount</label>
+                  <input id="amount-input" type="text" placeholder="e.g. 142.50" value="142.50">
+                  <div class="hint">Max payment per transaction: $500.00</div>
+                </div>
+                <div class="quick">
+                  <button data-quick-amount="142.50">Full Balance</button>
+                  <button data-quick-amount="71.25">Half</button>
+                  <button data-quick-amount="50.00">$50</button>
+                </div>
+              </div>
+              <div>
+                <div class="field">
+                  <label for="account-input">Service Account Number</label>
+                  <input id="account-input" type="text" value="VPU-441-8820">
+                </div>
+                <div class="field">
+                  <label for="zip-input">Billing ZIP Code</label>
+                  <input id="zip-input" type="text" maxlength="5" value="41001">
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div class="form-section">
-          <h3>Step 2 — Payment Method</h3>
-          <div class="payment-methods">
-            <div class="pay-method active">💳 Credit / Debit Card</div>
-            <div class="pay-method">🏦 eCheck / Bank Account</div>
-            <div class="pay-method">📱 PayPal</div>
-            <div class="pay-method">💵 Pay In Person</div>
-          </div>
-          <div style="margin-top:8px;">
-            <div class="field-row" style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;max-width:500px;">
-              <div class="field">
-                <label>Card Number <span class="req">*</span></label>
-                <input type="text" placeholder="XXXX XXXX XXXX XXXX">
-              </div>
-              <div class="field">
-                <label>Expiration <span class="req">*</span></label>
-                <input type="text" placeholder="MM/YY">
-              </div>
-              <div class="field">
-                <label>CVV <span class="req">*</span></label>
-                <input type="text" placeholder="XXX" style="max-width:70px">
+            <div class="field" style="margin-top: 10px;">
+              <label>Payment Method</label>
+              <div class="methods">
+                <label><input type="radio" name="pay-method" value="card" checked> Card</label>
+                <label><input type="radio" name="pay-method" value="ach"> ACH/eCheck</label>
               </div>
             </div>
-            <div class="field">
-              <label>Name on Card <span class="req">*</span></label>
-              <input type="text" placeholder="As it appears on card">
-            </div>
-          </div>
-        </div>
 
-        <div class="form-section">
-          <h3>Step 3 — Confirm Account</h3>
-          <div class="two-col">
-            <div>
+            <div id="card-fields" class="two-col">
               <div class="field">
-                <label>Service Account Number <span class="req">*</span></label>
-                <input type="text" placeholder="e.g. VPU-441-8820" value="VPU-441-8820">
-                <div class="hint">Found on your bill or utility card.</div>
+                <label for="card-number">Card Number</label>
+                <input id="card-number" type="text" value="4111 1111 1111 1111">
+              </div>
+              <div class="two-col">
+                <div class="field">
+                  <label for="card-exp">Expiration</label>
+                  <input id="card-exp" type="text" value="12/29">
+                </div>
+                <div class="field">
+                  <label for="card-cvv">CVV</label>
+                  <input id="card-cvv" type="text" value="123">
+                </div>
               </div>
             </div>
-            <div>
-              <div class="field">
-                <label>Billing ZIP Code <span class="req">*</span></label>
-                <input type="text" placeholder="e.g. 41001" maxlength="10">
-              </div>
+
+            <div class="totals">
+              <div class="row"><span>Processing Fee</span><strong id="fee-preview">$1.95</strong></div>
+              <div class="row grand"><span>Total Charge</span><strong id="total-preview">$144.45</strong></div>
             </div>
-          </div>
 
-          <div class="security-note">
-            🔒 Your payment is secured with 256-bit SSL encryption. We do not store credit card numbers. A convenience fee of <strong>$1.95</strong> applies to credit/debit card payments. ACH/eCheck payments are free.
-          </div>
-
-          <div class="field">
-            <label style="font-weight:normal;font-size:11px;display:flex;gap:6px;align-items:flex-start;">
-              <input type="checkbox" style="margin-top:2px;width:auto">
-              <span>I authorize the City of Valleyport to charge the payment method above for the amount specified. I understand this payment will be applied to account VPU-441-8820. I have read and agree to the <a href="#" style="color:#2c5f8a">Electronic Payment Terms</a>.</span>
+            <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.4;">
+              <input id="terms-input" type="checkbox" checked style="margin-top:2px;">
+              <span>I authorize this demo payment and agree to electronic terms.</span>
             </label>
+
+            <p class="legal">
+              This is a simulation portal for demo/testing only. No real payment network is used.
+              Transaction history is stored in your browser to mimic account behavior.
+            </p>
+
+            <div class="actions">
+              <button id="pay-btn" class="btn btn-primary">Submit Secure Payment</button>
+              <span style="font-size:11px;color:#60788f;">Automation target: #pay-btn</span>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div class="btn-row">
-          <button id="pay-btn" class="btn btn-yellow" onclick="submitPayment()">🔒 Submit Secure Payment →</button>
-          <button class="btn btn-grey">Cancel</button>
-          <span style="font-size:10px;color:#888;font-family:Arial">Processing: same business day if submitted before 3pm EST.</span>
-        </div>
-
-        <div class="legal">
-          <strong>Important:</strong> Payments submitted after 3:00 PM EST may not be processed until the next business day. To avoid service interruption for past-due accounts, contact our office at (555) 270-4400. The City of Valleyport does not accept responsibility for payments delayed by banking system outages or internet connectivity issues on the customer's side.
-        </div>
-      </div>
+        <section class="card">
+          <div class="card-header">Recent Payment History</div>
+          <div class="card-body">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Confirmation</th>
+                  <th>Amount</th>
+                  <th>Fee</th>
+                  <th>Method</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="payments-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
     </div>
-
   </div>
-</div>
 
-<footer>
-  <div class="footer-grid">
-    <div><h4>City of Valleyport</h4><a href="#">Official Website</a><br><a href="#">City Council</a><br><a href="#">Ordinances</a></div>
-    <div><h4>Utility Services</h4><a href="#">Rates &amp; Fees</a><br><a href="#">Service Area Map</a><br><a href="#">Water Quality Report</a></div>
-    <div><h4>Help &amp; Contact</h4><a href="#">FAQ</a><br><a href="#">Accessibility</a><br>Billing: (555) 270-4400</div>
+  <div class="overlay" id="processing-overlay">
+    <div class="box">
+      <div class="spinner"></div>
+      <h3 style="margin-bottom: 6px; color:#204766;">Processing Payment</h3>
+      <p style="font-size:12px;color:#5f7690;">Contacting gateway, validating account, posting transaction...</p>
+    </div>
   </div>
-  <div class="copy">City of Valleyport, Dept. of Public Works &amp; Utilities &copy; 2026 | <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a> | <a href="#">ADA Compliance</a> | Portal v4.2.1</div>
-</footer>
 
-<script>
-  document.getElementById('date-time').textContent = new Date().toLocaleString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  <div class="toast" id="toast"></div>
 
-  function submitPayment() {
-    const amount = document.getElementById('amount-input').value;
-    window.location.href = 'success.html?amount=' + encodeURIComponent(amount);
-  }
-</script>
+  <script src="app.js"></script>
+  <script>
+    window.utilityPortalApp.initPortal();
+  </script>
 </body>
 </html>

@@ -2,143 +2,192 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Payment Confirmed — City of Valleyport Utilities</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Receipt - CityConnect Utilities</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Verdana, Geneva, sans-serif; font-size: 12px; background: #e8ecf0; color: #222; }
-    .gov-strip { background: #1a3a5c; color: #aac0d8; padding: 2px 10px; font-size: 10px; }
-    .header { background: linear-gradient(135deg, #1a3a5c 0%, #2c5f8a 60%, #1a3a5c 100%); padding: 10px 14px; display: flex; align-items: center; gap: 14px; border-bottom: 4px solid #27ae60; }
-    .city-seal { width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle, #f0c040 0%, #d4a017 50%, #27ae60 51%, #1e8449 100%); display: flex; align-items: center; justify-content: center; font-size: 22px; border: 3px solid #f0c040; flex-shrink: 0; }
-    .header-text h1 { color: #fff; font-size: 16px; font-family: "Times New Roman"; }
-    .header-text p { color: #aac0d8; font-size: 10px; font-family: Arial; }
-    .main { max-width: 680px; margin: 20px auto; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", Tahoma, sans-serif; background: #eef3f7; color: #1f3245; }
 
-    .success-banner {
-      background: linear-gradient(to bottom, #1e8449, #27ae60);
-      color: #fff; padding: 16px 20px; text-align: center;
-      border: 3px solid #145a32; margin-bottom: 14px;
+    .header {
+      background: linear-gradient(135deg, #1a5f34, #2f8f4f);
+      color: #fff;
+      padding: 18px;
+      box-shadow: 0 8px 22px rgba(18, 61, 33, 0.26);
     }
-    .success-banner .icon { font-size: 44px; margin-bottom: 8px; }
-    .success-banner h2 { font-size: 22px; font-family: "Times New Roman"; margin-bottom: 4px; }
-    .success-banner p { font-size: 11px; color: #d5f5e3; font-family: Arial; }
 
-    .conf-box { background: #fff; border: 2px solid #27ae60; margin-bottom: 12px; }
-    .conf-box-title { background: #eafaf1; border-bottom: 1px solid #27ae60; padding: 6px 12px; font-size: 12px; font-weight: bold; color: #1e8449; font-family: Arial; }
-    .conf-body { padding: 12px 16px; font-size: 12px; line-height: 2; font-family: Arial; }
-    .conf-row { display: flex; border-bottom: 1px dotted #ddd; padding: 4px 0; }
-    .conf-row:last-child { border-bottom: none; }
-    .conf-label { width: 220px; color: #555; font-size: 11px; }
-    .conf-value { font-weight: bold; color: #1a3a5c; }
-    .conf-number { font-family: "Courier New"; font-size: 18px; font-weight: bold; color: #1a3a5c; background: #eafaf1; border: 1px solid #27ae60; padding: 4px 12px; display: inline-block; letter-spacing: 2px; }
+    .header h1 { font-size: 24px; margin-bottom: 4px; }
+    .header p { font-size: 13px; color: #d9f3df; }
 
-    .amount-big { font-size: 28px; color: #27ae60; font-weight: bold; font-family: "Times New Roman"; }
+    .page {
+      max-width: 920px;
+      margin: 18px auto;
+      padding: 0 12px 22px;
+    }
 
-    .notice { background: #e8f4fc; border: 1px solid #5dade2; padding: 10px 14px; font-size: 11px; line-height: 1.7; margin-bottom: 12px; font-family: Arial; }
-    .notice ul { padding-left: 16px; }
+    .banner {
+      border: 1px solid #bfe7c7;
+      background: #ebfbef;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
 
-    .btn { padding: 5px 18px; font-size: 12px; font-family: Arial; cursor: pointer; border: 1px solid; text-decoration: none; display: inline-block; margin-right: 8px; }
-    .btn-blue { background: linear-gradient(to bottom, #2c5f8a, #1a3a5c); color: #fff; border-color: #0d2b47; }
-    .btn-grey { background: linear-gradient(to bottom, #95a5a6, #717d7e); color: #fff; border-color: #5d6d7e; }
+    .banner strong { color: #256d35; }
 
-    footer { background: #1a3a5c; color: #aac0d8; font-size: 10px; font-family: Arial; padding: 8px 12px; text-align: center; margin-top: 20px; }
-    footer a { color: #aac0d8; }
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #d8e4ef;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(10, 34, 54, 0.08);
+      overflow: hidden;
+    }
+
+    .card h3 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #365a78;
+      border-bottom: 1px solid #e6edf4;
+      padding: 11px 13px;
+    }
+
+    .card .body { padding: 12px 13px; }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px dashed #e5edf5;
+      font-size: 13px;
+    }
+
+    .row:last-child { border-bottom: none; }
+    .row .label { color: #56718d; }
+    .row .value { font-weight: 700; color: #213d59; }
+
+    .total {
+      margin-top: 8px;
+      background: #f5fbf6;
+      border: 1px solid #d4ead8;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 17px;
+      display: flex;
+      justify-content: space-between;
+      color: #206131;
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid #e8eef5;
+      padding: 8px 6px;
+    }
+
+    th { color: #4b6886; font-size: 11px; text-transform: uppercase; }
+
+    .actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 8px;
+      border: 1px solid transparent;
+      padding: 8px 12px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary { background: #2f7fbd; color: #fff; border-color: #1d608f; }
+    .btn-light { background: #eef5fc; color: #2c587c; border-color: #b8cde1; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-<div class="gov-strip">City of Valleyport | Official Municipal Services Portal</div>
-<div class="header">
-  <div class="city-seal">🏛</div>
-  <div class="header-text">
-    <h1>City of Valleyport — Utility Services</h1>
-    <p>Payment Confirmation | Department of Public Works &amp; Utilities</p>
-  </div>
-</div>
+  <header class="header">
+    <h1>Payment Approved</h1>
+    <p>City of Valleyport Utility Services - Official Receipt</p>
+  </header>
 
-<div class="main">
-  <div class="success-banner">
-    <div class="icon">✅</div>
-    <h2>Payment Processed Successfully!</h2>
-    <p>Your utility payment has been received and applied to your account.</p>
-  </div>
+  <main class="page">
+    <section class="banner">
+      <div>
+        <strong>Success:</strong> Your payment has been posted to your utility account.
+      </div>
+      <div id="receipt-time" style="font-size:12px;color:#3f6a57;">-</div>
+    </section>
 
-  <div class="conf-box">
-    <div class="conf-box-title">🧾 Payment Confirmation Receipt</div>
-    <div class="conf-body">
-      <div class="conf-row">
-        <div class="conf-label">Confirmation Number:</div>
-        <div class="conf-value"><span class="conf-number" id="conf-num">VPU-2026-XXXXXXXX</span></div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Amount Paid:</div>
-        <div class="conf-value"><span class="amount-big" id="amount-display">$142.50</span></div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Convenience Fee:</div>
-        <div class="conf-value">$1.95 (credit card)</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Total Charged:</div>
-        <div class="conf-value" id="total-display">$144.45</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Account Number:</div>
-        <div class="conf-value">VPU-441-8820</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Service Address:</div>
-        <div class="conf-value">123 Main St, Valleyport, KY 41001</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Remaining Balance:</div>
-        <div class="conf-value" style="color:#27ae60;" id="remaining">$0.00</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Payment Method:</div>
-        <div class="conf-value">Credit Card ending in ****</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Transaction Date/Time:</div>
-        <div class="conf-value" id="txn-time">—</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Status:</div>
-        <div class="conf-value" style="color:#27ae60">✔ APPROVED</div>
-      </div>
+    <div class="layout">
+      <section class="card">
+        <h3>Receipt Details</h3>
+        <div class="body">
+          <div class="row"><span class="label">Confirmation</span><span class="value" id="receipt-conf">-</span></div>
+          <div class="row"><span class="label">Account</span><span class="value" id="receipt-account">-</span></div>
+          <div class="row"><span class="label">Amount</span><span class="value" id="receipt-amount">$0.00</span></div>
+          <div class="row"><span class="label">Processing Fee</span><span class="value" id="receipt-fee">$0.00</span></div>
+          <div class="row"><span class="label">Payment Method</span><span class="value" id="receipt-method">-</span></div>
+          <div class="row"><span class="label">Remaining Balance</span><span class="value" id="receipt-remaining">$0.00</span></div>
+          <div class="total"><span>Total Charged</span><span id="receipt-total">$0.00</span></div>
+
+          <div class="actions">
+            <a class="btn btn-primary" href="index.html">Return To Billing Portal</a>
+            <button class="btn btn-light" onclick="window.print()">Print Receipt</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Latest Activity</h3>
+        <div class="body">
+          <table>
+            <thead>
+              <tr>
+                <th>Confirmation</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Method</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="recent-row">
+                <td colspan="4">No activity found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
-  </div>
+  </main>
 
-  <div class="notice">
-    <strong>📧 Keep this for your records:</strong>
-    <ul>
-      <li>A receipt has been emailed to the address on file.</li>
-      <li>This payment will appear on your bank statement within 2–3 business days as <strong>"CITY OF VALLEYPORT UTIL"</strong>.</li>
-      <li>Your account is now current. No further action is needed.</li>
-      <li>Next bill due approximately: <strong>June 5, 2026</strong>.</li>
-    </ul>
-  </div>
-
-  <div>
-    <a href="index.html" class="btn btn-blue">← Return to Utility Portal</a>
-    <button class="btn btn-grey" onclick="window.print()">🖨 Print Receipt</button>
-  </div>
-</div>
-
-<footer>
-  City of Valleyport, Dept. of Public Works &amp; Utilities &copy; 2026 | 
-  <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a> | Portal v4.2.1
-</footer>
-
-<script>
-  const p = new URLSearchParams(window.location.search);
-  const amount = parseFloat(p.get('amount') || '142.50');
-  const total = (amount + 1.95).toFixed(2);
-  const remaining = Math.max(0, 142.50 - amount).toFixed(2);
-
-  document.getElementById('amount-display').textContent = '$' + amount.toFixed(2);
-  document.getElementById('total-display').textContent = '$' + total;
-  document.getElementById('remaining').textContent = '$' + remaining;
-  document.getElementById('conf-num').textContent = 'VPU-2026-' + Math.floor(10000000 + Math.random() * 90000000);
-  document.getElementById('txn-time').textContent = new Date().toLocaleString('en-US');
-</script>
+  <script src="app.js"></script>
+  <script>
+    window.utilityPortalApp.initSuccess();
+  </script>
 </body>
 </html>

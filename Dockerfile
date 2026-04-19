@@ -36,6 +36,7 @@ RUN python -m playwright install chromium
 # ── Copy source ───────────────────────────────
 COPY backend/ ./backend/
 COPY frontend/ ./frontend/
+COPY dummy_portal/ ./dummy_portal/
 
 # ── Expose port ───────────────────────────────
 EXPOSE 8000

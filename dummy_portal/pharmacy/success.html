@@ -1,125 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Refill Submitted — RxDirect</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Refill Submitted</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; background: #f0f0e8; color: #222; }
-    .top-strip { background: #8b0000; color: #fff; padding: 2px 12px; font-size: 10px; }
-    .header { background: #fff; border-bottom: 4px solid #27ae60; padding: 0; }
-    .header-inner { display: flex; align-items: stretch; }
-    .header-logo { background: #27ae60; padding: 10px 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 140px; }
-    .header-logo .rx { font-size: 30px; font-weight: 900; color: #fff; font-style: italic; letter-spacing: -2px; }
-    .header-logo .sub { color: #d5f5e3; font-size: 8px; letter-spacing: 1px; }
-    .header-middle { padding: 8px 14px; flex: 1; }
-    .header-middle h1 { font-size: 15px; color: #1e8449; font-weight: bold; }
-    .main { max-width: 680px; margin: 20px auto; }
-
-    .success-banner {
-      background: linear-gradient(to bottom, #1e8449, #27ae60);
-      color: #fff; padding: 16px 20px; text-align: center;
-      border: 3px solid #145a32; margin-bottom: 14px;
-    }
-    .success-banner .icon { font-size: 40px; margin-bottom: 8px; }
-    .success-banner h2 { font-size: 20px; margin-bottom: 4px; }
-    .success-banner p { font-size: 11px; color: #d5f5e3; }
-
-    .conf-box { background: #fff; border: 2px solid #27ae60; margin-bottom: 12px; }
-    .conf-box-title { background: #eafaf1; border-bottom: 1px solid #27ae60; padding: 6px 12px; font-size: 12px; font-weight: bold; color: #1e8449; }
-    .conf-body { padding: 12px 16px; font-size: 12px; line-height: 2; }
-    .conf-row { display: flex; border-bottom: 1px dotted #ddd; padding: 4px 0; }
-    .conf-row:last-child { border-bottom: none; }
-    .conf-label { width: 200px; color: #555; font-size: 11px; }
-    .conf-value { font-weight: bold; color: #003366; }
-    .conf-number { font-family: "Courier New"; font-size: 18px; font-weight: bold; color: #1e8449; background: #eafaf1; border: 1px solid #27ae60; padding: 4px 12px; display: inline-block; letter-spacing: 2px; }
-
-    .notice { background: #fff8e1; border: 1px solid #e0a800; padding: 10px 14px; font-size: 11px; line-height: 1.7; margin-bottom: 12px; }
-    .notice ul { padding-left: 16px; }
-
-    .btn { padding: 5px 16px; font-size: 12px; cursor: pointer; border: 1px solid; text-decoration: none; display: inline-block; margin-right: 8px; }
-    .btn-red { background: linear-gradient(to bottom, #c0392b, #922b21); color: #fff; border-color: #7b241c; }
-    .btn-grey { background: linear-gradient(to bottom, #95a5a6, #717d7e); color: #fff; border-color: #5d6d7e; }
-
-    footer { background: #333; color: #aaa; font-size: 10px; padding: 8px 12px; text-align: center; margin-top: 20px; }
+    body { margin: 0; font-family: "Segoe UI", Tahoma, sans-serif; background: #f5f2ef; color: #2e2a28; }
+    .header { background: linear-gradient(135deg, #8e2323, #b73a3a); color: #fff; padding: 18px; }
+    .wrap { max-width: 840px; margin: 18px auto; padding: 0 12px; }
+    .card { background: #fff; border: 1px solid #eadfdd; border-radius: 12px; padding: 14px; }
+    .row { display: flex; justify-content: space-between; border-bottom: 1px dashed #eee4e2; padding: 8px 0; font-size: 13px; }
+    .row:last-child { border-bottom: none; }
+    .l { color: #8a6767; }
+    .v { font-weight: 700; color: #5e2323; }
+    .btn { display: inline-block; margin-top: 12px; background: #ab2a2a; color: #fff; text-decoration: none; padding: 8px 12px; border-radius: 8px; font-size: 12px; }
   </style>
 </head>
 <body>
-<div class="top-strip">RxDirect Pharmacy Management System v2.1 | Member Portal</div>
-<div class="header">
-  <div class="header-inner">
-    <div class="header-logo"><div class="rx">Rx<span style="font-size:14px;font-style:normal;">Direct</span></div><div class="sub">PATIENT PORTAL</div></div>
-    <div class="header-middle"><h1>✅ Refill Request Submitted Successfully</h1><p>Your prescription refill has been queued for processing</p></div>
-  </div>
-</div>
-
-<div class="main">
-  <div class="success-banner">
-    <div class="icon">💊</div>
-    <h2>Refill Request Received!</h2>
-    <p>Your request has been sent to the pharmacy for review and fulfillment.</p>
-  </div>
-
-  <div class="conf-box">
-    <div class="conf-box-title">📋 Refill Confirmation Details</div>
-    <div class="conf-body">
-      <div class="conf-row">
-        <div class="conf-label">Confirmation Number:</div>
-        <div class="conf-value"><span class="conf-number" id="conf-num">RXD-XXXXXX</span></div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Medication:</div>
-        <div class="conf-value" id="med-display">—</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Days Supply:</div>
-        <div class="conf-value" id="qty-display">—</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Fulfillment Method:</div>
-        <div class="conf-value">Mail-Order Delivery</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Est. Delivery:</div>
-        <div class="conf-value" id="delivery-date">7–10 business days</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Status:</div>
-        <div class="conf-value" style="color:#e67e22">⏳ Pharmacist Review Pending</div>
-      </div>
-      <div class="conf-row">
-        <div class="conf-label">Submitted:</div>
-        <div class="conf-value" id="submitted-time">—</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="notice">
-    <strong>📦 What happens next:</strong>
-    <ul>
-      <li>A pharmacist will review your request within 1 business day.</li>
-      <li>If approved, your medication will be dispensed and shipped via USPS/UPS within 2 business days.</li>
-      <li>You will receive tracking information by email once your order ships.</li>
-      <li>Questions? Call our 24-hr pharmacy line: <strong>1-800-555-7299</strong></li>
-    </ul>
-  </div>
-
-  <div>
-    <a href="index.html" class="btn btn-red">← Back to My Prescriptions</a>
-    <button class="btn btn-grey" onclick="window.print()">🖨 Print Confirmation</button>
-  </div>
-</div>
-
-<footer>RxDirect &copy; 2026 | MedPharm Solutions LLC | HIPAA Compliant | v2.1.4</footer>
-
-<script>
-  const p = new URLSearchParams(window.location.search);
-  const med = p.get('medication') || 'medication';
-  const qty = p.get('quantity') || '90';
-  document.getElementById('med-display').textContent = med.charAt(0).toUpperCase() + med.slice(1) + ' — as prescribed';
-  document.getElementById('qty-display').textContent = qty + '-day supply';
-  document.getElementById('conf-num').textContent = 'RXD-' + Math.floor(100000 + Math.random() * 900000);
-  document.getElementById('submitted-time').textContent = new Date().toLocaleString('en-US');
-</script>
+  <header class="header">
+    <h1 style="margin:0 0 6px;">Refill Request Submitted</h1>
+    <p style="margin:0;">Your refill is in pharmacist review.</p>
+  </header>
+  <main class="wrap">
+    <section class="card">
+      <div class="row"><span class="l">Confirmation</span><span class="v" id="conf-num">-</span></div>
+      <div class="row"><span class="l">Medication</span><span class="v" id="med-display">-</span></div>
+      <div class="row"><span class="l">Days Supply</span><span class="v" id="qty-display">-</span></div>
+      <div class="row"><span class="l">Estimated Delivery</span><span class="v" id="delivery-date">-</span></div>
+      <div class="row"><span class="l">Submitted At</span><span class="v" id="submitted-time">-</span></div>
+      <a class="btn" href="index.html">Return To Portal</a>
+    </section>
+  </main>
+  <script src="app.js"></script>
+  <script>window.pharmacyPortalApp.initSuccess();</script>
 </body>
 </html>

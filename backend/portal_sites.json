@@ -1,0 +1,38 @@
+{
+  "hospital": {
+    "urls": [
+      "{BASE_URL}/hospital/",
+      "https://your-hospital-portal.example.com/login"
+    ],
+    "selectors": {
+      "login_button": "#login-btn",
+      "doctor_input": "#doctor-input",
+      "date_input": "#date-input",
+      "submit_button": "#submit-btn"
+    },
+    "success_url_pattern": "**/success**"
+  },
+  "pharmacy": {
+    "urls": [
+      "{BASE_URL}/pharmacy/",
+      "https://your-pharmacy-portal.example.com/refill"
+    ],
+    "selectors": {
+      "medication_input": "#medication-input",
+      "quantity_input": "#quantity-input",
+      "submit_button": "#refill-btn"
+    },
+    "success_url_pattern": "**/success**"
+  },
+  "utility": {
+    "urls": [
+      "{BASE_URL}/utility/",
+      "https://your-utility-portal.example.com/pay"
+    ],
+    "selectors": {
+      "amount_input": "#amount-input",
+      "submit_button": "#pay-btn"
+    },
+    "success_url_pattern": "**/success**"
+  }
+}

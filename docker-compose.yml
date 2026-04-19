@@ -15,7 +15,9 @@ services:
       # ── Optional fallback LLM ───────────────
       - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
       # ── Portal base URL (dummy portals served separately or same host) ──
-      - PORTAL_BASE_URL=${PORTAL_BASE_URL:-http://localhost:8080}
+      - PORTAL_BASE_URL=${PORTAL_BASE_URL:-http://dummy-portal}
+      # ── Optional: JSON config for real website selectors/URLs ────────────
+      - PORTAL_SITE_CONFIG_PATH=${PORTAL_SITE_CONFIG_PATH:-/app/backend/portal_sites.json}
     # Chromium needs /dev/shm > 64MB for stable rendering
     shm_size: "256m"
     # Required for headless Chromium in Docker

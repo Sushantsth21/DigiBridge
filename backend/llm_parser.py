@@ -36,6 +36,105 @@ PORTAL_ACTION_SCHEMAS = {
     },
 }
 
+UTILITY_KEYWORDS = {
+    "utility",
+    "electricity",
+    "electric",
+    "power",
+    "water",
+    "gas",
+    "bill",
+    "balance",
+}
+
+PHARMACY_KEYWORDS = {
+    "pharmacy",
+    "medication",
+    "medicine",
+    "prescription",
+    "refill",
+    "drug",
+}
+
+HOSPITAL_KEYWORDS = {
+    "hospital",
+    "doctor",
+    "appointment",
+    "clinic",
+    "visit",
+    "schedule",
+    "cancel",
+}
+
+
+def _heuristic_intent(transcript: str, requested_portal: str) -> dict | None:
+    """
+    Fast, deterministic fallback for obvious phrases.
+    Returns a normalized intent dict or None if no heuristic matched.
+    """
+    text = transcript.lower().strip()
+    if not text:
+        return None
+
+    inferred_portal = requested_portal
+    if any(k in text for k in UTILITY_KEYWORDS):
+        inferred_portal = "utility"
+    elif any(k in text for k in PHARMACY_KEYWORDS):
+        inferred_portal = "pharmacy"
+    elif any(k in text for k in HOSPITAL_KEYWORDS):
+        inferred_portal = "hospital"
+
+    if inferred_portal == "utility":
+        if "balance" in text or "due" in text:
+            intent_name = "check_balance"
+        else:
+            intent_name = "pay_bill"
+    elif inferred_portal == "pharmacy":
+        if "status" in text or "ready" in text:
+            intent_name = "check_status"
+        else:
+            intent_name = "refill"
+    elif inferred_portal == "hospital":
+        if "cancel" in text or "reschedule" in text:
+            intent_name = "cancel"
+        else:
+            intent_name = "schedule"
+    else:
+        return None
+
+    return {
+        "intent": intent_name,
+        "confidence": 0.74,
+        "entities": {},
+        "action": intent_name,
+        "portal": inferred_portal,
+    }
+
+
+def _normalize_intent_shape(intent: dict, requested_portal: str) -> dict:
+    """
+    Normalize LLM/heuristic output into a shape compatible with automation.
+    Keeps modern keys (intent/entities) and adds legacy flattened keys.
+    """
+    normalized = {
+        "intent": intent.get("intent") or intent.get("action") or "unknown",
+        "confidence": intent.get("confidence", 0),
+        "entities": intent.get("entities") if isinstance(intent.get("entities"), dict) else {},
+    }
+
+    # Some models may return entities at top level. Mirror supported fields into entities.
+    for key in ("doctor", "date", "medication", "quantity", "amount", "account"):
+        if key in intent and key not in normalized["entities"] and intent.get(key) not in (None, ""):
+            normalized["entities"][key] = intent[key]
+
+    # Flatten entities so existing automation and summaries keep working.
+    normalized["action"] = normalized["intent"]
+    normalized.update(normalized["entities"])
+
+    portal = intent.get("portal") or requested_portal
+    normalized["portal"] = portal
+    return normalized
+
 
 def _build_system_prompt(portal: str) -> str:
     schema = PORTAL_ACTION_SCHEMAS.get(portal, PORTAL_ACTION_SCHEMAS["hospital"])
@@ -77,6 +176,18 @@ def extract_intent(
     """
     log.info(f"Extracting intent | portal={portal} | transcript='{transcript}'")
 
+    # Heuristic shortcut for very clear requests and cross-portal recovery.
+    heuristic = _heuristic_intent(transcript, requested_portal=portal)
+    if heuristic:
+        if heuristic["portal"] != portal:
+            log.info(
+                "Heuristic cross-portal routing | requested=%s | inferred=%s | transcript='%s'",
+                portal,
+                heuristic["portal"],
+                transcript,
+            )
+        return heuristic
+
     system_prompt = _build_system_prompt(portal)
     user_message = f'User said: "{transcript}"'
 
@@ -97,16 +208,14 @@ def extract_intent(
         log.error(f"Could not parse LLM response as JSON: {result!r}")
         return {"intent": "unknown", "confidence": 0, "entities": {}}
 
-    # Ensure required keys
-    if not all(k in intent for k in ("intent", "confidence", "entities")):
-        intent = {"intent": intent.get("intent", "unknown"), "confidence": intent.get("confidence", 0), "entities": intent.get("entities", {})}
-        # Fill missing keys with safe defaults
-        if "intent" not in intent:
-            intent["intent"] = "unknown"
-        if "confidence" not in intent:
-            intent["confidence"] = 0
-        if "entities" not in intent:
-            intent["entities"] = {}
+    intent = _normalize_intent_shape(intent, requested_portal=portal)
+
+    # If the LLM still cannot determine intent, try deterministic fallback before failing.
+    if intent.get("intent") == "unknown":
+        heuristic_fallback = _heuristic_intent(transcript, requested_portal=portal)
+        if heuristic_fallback:
+            log.info("Heuristic fallback used after unknown LLM intent")
+            intent = heuristic_fallback
 
     log.info(f"Parsed intent: {intent}")
     return intent

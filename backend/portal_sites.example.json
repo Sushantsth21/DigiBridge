@@ -1,0 +1,35 @@
+{
+  "hospital": {
+    "urls": [
+      "https://your-hospital-portal.example.com/login"
+    ],
+    "selectors": {
+      "login_button": "button[type='submit']",
+      "doctor_input": "input[name='doctor']",
+      "date_input": "input[name='appointmentDate']",
+      "submit_button": "button[data-test='schedule-submit']"
+    },
+    "success_url_pattern": "**/confirmation**"
+  },
+  "pharmacy": {
+    "urls": [
+      "https://your-pharmacy-portal.example.com/refill"
+    ],
+    "selectors": {
+      "medication_input": "input[name='medication']",
+      "quantity_input": "input[name='quantity']",
+      "submit_button": "button[data-test='refill-submit']"
+    },
+    "success_url_pattern": "**/order-confirmation**"
+  },
+  "utility": {
+    "urls": [
+      "https://your-utility-portal.example.com/pay"
+    ],
+    "selectors": {
+      "amount_input": "input[name='amount']",
+      "submit_button": "button[data-test='pay-submit']"
+    },
+    "success_url_pattern": "**/receipt**"
+  }
+}

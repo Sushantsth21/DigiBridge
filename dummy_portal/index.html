@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Bridge Dummy Portals</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(135deg, #0e2438, #1d4f77);
+      color: #eef6ff;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+
+    .card {
+      width: min(92vw, 760px);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      padding: 22px;
+      backdrop-filter: blur(4px);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: 0.02em;
+    }
+
+    p {
+      margin: 0 0 16px;
+      color: #d8e9f8;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    a {
+      display: block;
+      text-decoration: none;
+      background: #f1b947;
+      color: #1f2a34;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    a:hover {
+      background: #ffd88f;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Dummy Portal Gateway</h1>
+    <p>Use these links to open the realistic demo portals.</p>
+    <div class="grid">
+      <a href="/hospital/">Hospital Portal</a>
+      <a href="/pharmacy/">Pharmacy Portal</a>
+      <a href="/utility/">Utility Portal</a>
+    </div>
+  </main>
+</body>
+</html>
