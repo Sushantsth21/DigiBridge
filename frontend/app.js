@@ -3,13 +3,19 @@
    Features: #2 Live Status Ticker, #5 Multi-Portal, #6 Session Memory
 ────────────────────────────────────────────── */
 
-// Covers: file://, localhost, 127.0.0.1 → point at dev backend
-// Real domain/IP → same-origin (nginx proxies to :8000)
-const API_BASE = (
+// Covers: file://, localhost, 127.0.0.1 → point at dev backend.
+// Non-local usage points to deployed server IP (supports both :80 and :8080 access patterns).
+const DEPLOYED_HOST = "144.202.49.80";
+const IS_LOCAL =
   window.location.protocol === "file:" ||
   window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-) ? "http://localhost:8000" : "";
+  window.location.hostname === "127.0.0.1";
+
+const API_BASE = IS_LOCAL
+  ? "http://localhost:8000"
+  : window.location.port === "8080"
+    ? `http://${DEPLOYED_HOST}:8080`
+    : `http://${DEPLOYED_HOST}`;
 
 // ── DOM refs ──────────────────────────────────
 const micBtn        = document.getElementById("mic-btn");
