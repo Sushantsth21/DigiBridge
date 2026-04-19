@@ -5,333 +5,538 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Digital Bridge</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    /* ── Reset & variables ────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #0a0f1a;
-      --surface:  #111827;
-      --border:   #1e293b;
-      --accent:   #38bdf8;
-      --accent2:  #818cf8;
-      --success:  #34d399;
-      --warn:     #fbbf24;
-      --danger:   #f87171;
-      --text:     #f1f5f9;
-      --muted:    #64748b;
-      --mic-size: clamp(120px, 22vw, 180px);
+      --bg: #f4efe6;
+      --paper: #fffdfa;
+      --ink: #1e2329;
+      --ink-soft: #4e5a66;
+      --line: #d9cdb9;
+      --brand: #0e8a6c;
+      --brand-strong: #0b6f58;
+      --accent: #e07a2f;
+      --success: #17876f;
+      --danger: #b6402d;
+      --warm: #f7d6ab;
+      --mic-size: clamp(120px, 20vw, 170px);
     }
 
     html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: clamp(14px, 1.6vw, 17px);
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(224, 122, 47, 0.14), transparent 38%),
+        radial-gradient(circle at 92% 88%, rgba(14, 138, 108, 0.16), transparent 42%),
+        linear-gradient(145deg, #f7f3eb 0%, #efe7da 100%);
+      color: var(--ink);
+      font-family: "Sora", sans-serif;
     }
 
-    /* ── Layout ───────────────────────────────────── */
     .page {
       min-height: 100vh;
+      padding: clamp(1rem, 2.6vw, 2rem);
       display: grid;
       grid-template-rows: auto 1fr auto;
-      padding: 2rem clamp(1rem, 5vw, 4rem);
-      gap: 2rem;
+      gap: clamp(1.2rem, 2.4vw, 2rem);
     }
 
-    header {
+    .shell {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    header.shell {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 1.25rem;
+      gap: 1rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--paper) 88%, #ffffff);
+      backdrop-filter: blur(2px);
+      animation: reveal 520ms ease both;
+    }
+
+    .brand {
+      display: grid;
+      gap: 0.4rem;
     }
 
     .logo {
-      font-family: 'Fraunces', serif;
-      font-size: clamp(1.4rem, 3vw, 2.2rem);
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: -0.03em;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: clamp(1.4rem, 2.4vw, 2rem);
+      line-height: 1;
+      color: var(--brand-strong);
     }
-    .logo span { font-weight: 300; }
 
-    /* ── Portal selector ──────────────────────────── */
-    .portal-row {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
+    .kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--ink-soft);
+      font-family: "IBM Plex Mono", monospace;
     }
-    .portal-btn {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.85rem;
-      padding: 0.4rem 1rem;
+
+    .auto-route-badge {
+      border: 1px solid var(--line);
       border-radius: 999px;
-      cursor: pointer;
-      transition: all 0.2s;
+      background: #fff9f0;
+      color: #56626e;
+      padding: 0.44rem 0.8rem;
+      font-size: 0.74rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-family: "IBM Plex Mono", monospace;
     }
-    .portal-btn:hover { border-color: var(--accent); color: var(--text); }
-    .portal-btn.active {
-      border-color: var(--accent);
-      background: color-mix(in srgb, var(--accent) 12%, var(--surface));
-      color: var(--accent);
-    }
-    .portal-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
-    /* ── Main content ─────────────────────────────── */
-    main {
+    main.shell {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.85fr) minmax(360px, 1fr);
+      gap: clamp(1rem, 2.4vw, 2rem);
+      align-items: start;
+    }
+
+    .intro {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(160deg, #fff6e8 0%, #fffdf9 100%);
+      padding: clamp(1rem, 2vw, 1.6rem);
+      display: grid;
+      gap: 1rem;
+      animation: reveal 620ms ease 50ms both;
+    }
+
+    .intro h1 {
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      line-height: 1.07;
+      letter-spacing: -0.03em;
+      max-width: 12ch;
+    }
+
+    .intro p {
+      color: var(--ink-soft);
+      line-height: 1.6;
+      font-size: 0.95rem;
+      max-width: 45ch;
+    }
+
+    .chips {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2.5rem;
+      flex-wrap: wrap;
+      gap: 0.48rem;
     }
 
-    /* ── Mic button ───────────────────────────────── */
+    .chips span {
+      border: 1px solid color-mix(in srgb, var(--line) 85%, white);
+      border-radius: 999px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.72rem;
+      font-family: "IBM Plex Mono", monospace;
+      color: #3f4b57;
+      background: #fffcf8;
+    }
+
+    .voice-panel {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+      padding: clamp(1rem, 2vw, 1.6rem);
+      display: grid;
+      gap: 1rem;
+      animation: reveal 620ms ease 110ms both;
+      box-shadow: 0 8px 28px rgba(69, 58, 41, 0.1);
+    }
+
+    .voice-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+
+    .voice-topline h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .session-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.28rem 0.66rem;
+      font-size: 0.72rem;
+      color: #5e6a75;
+      background: #fffdf9;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #b6b8bb;
+      transition: background-color 180ms ease;
+      flex-shrink: 0;
+    }
+
+    .dot.active { background: var(--success); }
+
+    .mic-section {
+      display: grid;
+      justify-items: center;
+      gap: 0.75rem;
+      margin: 0.25rem 0 0.45rem;
+    }
+
     .mic-wrap {
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: var(--mic-size);
+      height: var(--mic-size);
+      display: grid;
+      place-items: center;
     }
 
     .pulse-ring {
       position: absolute;
-      width: var(--mic-size);
-      height: var(--mic-size);
+      width: calc(var(--mic-size) - 6px);
+      height: calc(var(--mic-size) - 6px);
       border-radius: 50%;
-      border: 2px solid var(--accent);
+      border: 2px solid color-mix(in srgb, var(--brand) 35%, white);
       opacity: 0;
+      pointer-events: none;
       animation: none;
     }
 
-    @keyframes pulse {
-      0%   { transform: scale(1);   opacity: 0.7; }
-      100% { transform: scale(1.9); opacity: 0; }
-    }
-
-    .listening .pulse-ring:nth-child(1) { animation: pulse 1.4s ease-out infinite; }
-    .listening .pulse-ring:nth-child(2) { animation: pulse 1.4s ease-out 0.45s infinite; }
-    .listening .pulse-ring:nth-child(3) { animation: pulse 1.4s ease-out 0.9s infinite; }
+    .listening .pulse-ring:nth-child(1) { animation: pulse 1.35s ease-out infinite; }
+    .listening .pulse-ring:nth-child(2) { animation: pulse 1.35s ease-out 0.4s infinite; }
+    .listening .pulse-ring:nth-child(3) { animation: pulse 1.35s ease-out 0.8s infinite; }
 
     #mic-btn {
-      position: relative;
-      z-index: 1;
       width: var(--mic-size);
       height: var(--mic-size);
       border-radius: 50%;
-      border: 3px solid var(--accent);
-      background: var(--surface);
+      border: 3px solid var(--brand);
+      background:
+        radial-gradient(circle at 30% 20%, #fffefb 0%, #fff3e0 52%, #f9dfbe 100%);
+      color: var(--brand-strong);
+      font-size: clamp(2.4rem, 5vw, 3.4rem);
+      display: grid;
+      place-items: center;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: clamp(2.5rem, 6vw, 4rem);
-      transition: transform 0.15s, background 0.2s, border-color 0.2s;
-      box-shadow: 0 0 40px color-mix(in srgb, var(--accent) 20%, transparent);
+      transition: transform 140ms ease, box-shadow 200ms ease, border-color 180ms ease;
+      box-shadow: 0 10px 24px rgba(26, 98, 84, 0.22);
+      z-index: 1;
     }
-    #mic-btn:hover  { transform: scale(1.06); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+
+    #mic-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 28px rgba(26, 98, 84, 0.28);
+    }
+
     #mic-btn:active { transform: scale(0.96); }
-    #mic-btn:focus-visible { outline: 4px solid var(--accent2); outline-offset: 6px; }
-    #mic-btn.recording { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); }
+
+    #mic-btn:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--accent) 62%, white);
+      outline-offset: 3px;
+    }
+
+    #mic-btn.recording {
+      border-color: var(--danger);
+      color: var(--danger);
+      box-shadow: 0 12px 24px rgba(182, 64, 45, 0.28);
+    }
 
     .mic-label {
-      font-family: 'Fraunces', serif;
-      font-size: clamp(0.85rem, 1.5vw, 1rem);
-      color: var(--muted);
-      letter-spacing: 0.05em;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      margin-top: -0.5rem;
+      color: #57616b;
     }
 
-    /* ── Transcript box ───────────────────────────── */
-    #transcript-box {
+    #transcript-box,
+    #status-ticker,
+    #result-card {
       width: 100%;
-      max-width: 620px;
-      min-height: 3.5rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 0.75rem;
-      padding: 0.9rem 1.25rem;
-      font-size: 1rem;
-      color: var(--text);
-      line-height: 1.6;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fffcf7;
+    }
+
+    #transcript-box {
+      min-height: 4rem;
+      padding: 0.85rem 1rem;
+      line-height: 1.58;
+      color: #2f3a45;
+      font-size: 0.94rem;
       white-space: pre-wrap;
     }
-    #transcript-box.placeholder { color: var(--muted); font-style: italic; }
 
-    /* ── Status ticker  (Feature #2) ─────────────── */
+    #transcript-box.placeholder {
+      color: #7e8a95;
+      font-style: italic;
+    }
+
     #status-ticker {
-      width: 100%;
-      max-width: 620px;
+      min-height: 6.1rem;
+      padding: 0.7rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      min-height: 6rem;
+      gap: 0.45rem;
     }
 
     .status-step {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      background: var(--surface);
-      border-left: 3px solid var(--border);
-      font-size: 0.9rem;
-      color: var(--muted);
+      gap: 0.62rem;
+      border-left: 4px solid #c8c2b2;
+      border-radius: 8px;
+      background: #fffefb;
+      padding: 0.5rem 0.72rem;
+      font-size: 0.84rem;
+      color: #66717c;
       opacity: 0;
-      transform: translateX(-10px);
-      transition: opacity 0.35s, transform 0.35s;
+      transform: translateX(-8px);
+      transition: opacity 220ms ease, transform 220ms ease, border-color 200ms ease;
     }
+
     .status-step.visible {
       opacity: 1;
       transform: translateX(0);
     }
-    .status-step.active  { border-left-color: var(--accent);  color: var(--text); }
-    .status-step.done    { border-left-color: var(--success); color: var(--success); }
 
-    .spinner {
-      width: 14px; height: 14px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      flex-shrink: 0;
-      animation: spin 0.7s linear infinite;
+    .status-step.active {
+      border-left-color: var(--brand);
+      color: #2f3a45;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Result card ──────────────────────────────── */
-    #result-card {
-      display: none;
-      width: 100%;
-      max-width: 620px;
-      border: 1px solid var(--success);
-      border-radius: 0.75rem;
-      overflow: hidden;
-      background: color-mix(in srgb, var(--success) 6%, var(--surface));
-    }
-    #result-card.error { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 6%, var(--surface)); }
-    .result-header {
-      padding: 0.75rem 1.25rem;
-      background: color-mix(in srgb, var(--success) 15%, var(--surface));
-      font-family: 'Fraunces', serif;
-      font-weight: 700;
-      font-size: 1.05rem;
+    .status-step.done {
+      border-left-color: var(--success);
       color: var(--success);
     }
-    #result-card.error .result-header { color: var(--danger); background: color-mix(in srgb, var(--danger) 15%, var(--surface)); }
-    .result-message { padding: 1rem 1.25rem; line-height: 1.6; }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #d4cdbf;
+      border-top-color: var(--brand);
+      animation: spin 760ms linear infinite;
+      flex-shrink: 0;
+    }
+
+    #result-card {
+      display: none;
+      overflow: hidden;
+      border-color: color-mix(in srgb, var(--success) 48%, var(--line));
+      background: color-mix(in srgb, var(--success) 8%, #fffdfa);
+    }
+
+    #result-card.error {
+      border-color: color-mix(in srgb, var(--danger) 48%, var(--line));
+      background: color-mix(in srgb, var(--danger) 8%, #fffdfa);
+    }
+
+    .result-header {
+      padding: 0.62rem 0.9rem;
+      border-bottom: 1px solid color-mix(in srgb, var(--line) 88%, white);
+      color: var(--success);
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      background: color-mix(in srgb, var(--success) 14%, #fffdfa);
+    }
+
+    #result-card.error .result-header {
+      color: var(--danger);
+      background: color-mix(in srgb, var(--danger) 14%, #fffdfa);
+    }
+
+    .result-message {
+      padding: 0.95rem;
+      line-height: 1.58;
+      color: #2b3641;
+      font-size: 0.92rem;
+    }
+
     #result-screenshot {
       width: 100%;
-      border-top: 1px solid var(--border);
-      display: block;
       max-height: 320px;
       object-fit: cover;
+      border-top: 1px solid color-mix(in srgb, var(--line) 88%, white);
+      display: block;
     }
 
-
-    /* ── Footer ───────────────────────────────────── */
-    footer {
+    .controls-row {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      border-top: 1px solid var(--border);
-      padding-top: 1rem;
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-    .session-badge {
-      display: flex;
       align-items: center;
-      gap: 0.4rem;
-      font-size: 0.75rem;
-      color: var(--muted);
+      gap: 0.75rem;
     }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
-    .dot.active { background: var(--success); }
 
     #repeat-btn {
       display: none;
-      background: none;
-      border: 1px solid var(--accent2);
-      color: var(--accent2);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      padding: 0.3rem 0.75rem;
+      border: 1px solid color-mix(in srgb, var(--accent) 52%, var(--line));
+      color: #8a4f1e;
+      background: #fff8ee;
       border-radius: 999px;
+      padding: 0.42rem 0.88rem;
+      font-size: 0.75rem;
+      font-family: "IBM Plex Mono", monospace;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: transform 140ms ease, background-color 180ms ease;
     }
-    #repeat-btn:hover { background: color-mix(in srgb, var(--accent2) 12%, transparent); }
+
+    #repeat-btn:hover {
+      transform: translateY(-1px);
+      background: color-mix(in srgb, var(--accent) 13%, #fff8ee);
+    }
+
+    footer.shell {
+      padding: 0.4rem 0.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+      color: #58626d;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.74rem;
+      animation: reveal 640ms ease 200ms both;
+    }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.65; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 960px) {
+      header.shell {
+        flex-direction: column;
+      }
+
+      main.shell {
+        grid-template-columns: 1fr;
+      }
+
+      .intro h1 {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        padding: 0.75rem;
+      }
+
+      .intro,
+      .voice-panel {
+        padding: 0.9rem;
+      }
+
+      .controls-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      footer.shell {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
   </style>
 </head>
 <body>
-<div class="page">
-
-  <!-- Header -->
-  <header>
-    <div class="logo">Digital <span>Bridge</span></div>
-    <!-- Portal selector (Feature #5) -->
-    <div class="portal-row" id="portal-row" role="group" aria-label="Select portal">
-      <button class="portal-btn active" data-portal="hospital" aria-pressed="true">🏥 Hospital</button>
-      <button class="portal-btn" data-portal="pharmacy"  aria-pressed="false">💊 Pharmacy</button>
-      <button class="portal-btn" data-portal="utility"   aria-pressed="false">💡 Utility</button>
-    </div>
-  </header>
-
-  <!-- Main -->
-  <main>
-    <!-- Mic -->
-    <div>
-      <div class="mic-wrap" id="mic-wrap">
-        <div class="pulse-ring"></div>
-        <div class="pulse-ring"></div>
-        <div class="pulse-ring"></div>
-        <button id="mic-btn" aria-label="Press to speak" aria-pressed="false">🎙️</button>
+  <div class="page">
+    <header class="shell">
+      <div class="brand">
+        <div class="kicker">Voice Automation Workspace</div>
+        <div class="logo">Digital Bridge</div>
       </div>
-      <p class="mic-label" id="mic-label" aria-live="polite">Press to speak</p>
-    </div>
 
-    <!-- Transcript -->
-    <div id="transcript-box" class="placeholder" role="status" aria-live="polite">
-      Your words will appear here…
-    </div>
+      <div class="auto-route-badge" aria-label="Automatic routing enabled">Auto-route by voice</div>
+    </header>
 
-    <!-- Live status ticker (Feature #2) -->
-    <div id="status-ticker" aria-live="polite" aria-label="Processing status"></div>
+    <main class="shell">
+      <section class="intro" aria-label="Application overview">
+        <h1>Speak once. Route to the right portal.</h1>
+        <p>
+          Digital Bridge captures your request, extracts intent, and drives browser automation in real time.
+          Speak naturally and the system routes each request to hospital, pharmacy, or utility automatically.
+        </p>
+        <div class="chips" aria-hidden="true">
+          <span>Live Status Stream</span>
+          <span>Session Memory</span>
+          <span>Automatic Routing</span>
+          <span>Screenshot Confirmation</span>
+        </div>
+      </section>
 
-    <!-- Result card -->
-    <div id="result-card" role="region" aria-label="Result">
-      <div class="result-header" id="result-header">✅ Done</div>
-      <div class="result-message" id="result-message"></div>
-      <img id="result-screenshot" alt="Confirmation screenshot" style="display:none" />
-    </div>
-  </main>
+      <section class="voice-panel" aria-label="Voice controls">
+        <div class="voice-topline">
+          <h2>Command Console</h2>
+          <div class="session-badge">
+            <div class="dot" id="session-dot"></div>
+            <span id="session-label">No session</span>
+          </div>
+        </div>
 
-  <!-- Footer -->
-  <footer>
-    <div class="session-badge">
-      <div class="dot" id="session-dot"></div>
-      <span id="session-label">No session</span>
-    </div>
-    <button id="repeat-btn" aria-label="Repeat last action" title="Repeat last action">↩ Repeat last</button>
-    <span>Digital Bridge v2.0</span>
-  </footer>
+        <div class="mic-section">
+          <div class="mic-wrap" id="mic-wrap">
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring"></div>
+            <button id="mic-btn" aria-label="Press to speak" aria-pressed="false">Mic</button>
+          </div>
+          <p class="mic-label" id="mic-label" aria-live="polite">Press to speak</p>
+        </div>
 
-</div>
+        <div id="transcript-box" class="placeholder" role="status" aria-live="polite">
+          Your words will appear here...
+        </div>
 
-<!-- Hidden audio for ElevenLabs playback -->
-<audio id="tts-audio" preload="auto" style="display:none"></audio>
+        <div id="status-ticker" aria-live="polite" aria-label="Processing status"></div>
 
-<script src="app.js"></script>
+        <div id="result-card" role="region" aria-label="Result">
+          <div class="result-header" id="result-header">Done</div>
+          <div class="result-message" id="result-message"></div>
+          <img id="result-screenshot" alt="Confirmation screenshot" style="display:none" />
+        </div>
+
+        <div class="controls-row">
+          <button id="repeat-btn" aria-label="Repeat last action" title="Repeat last action">Repeat last action</button>
+          <span class="kicker">v3 Frontend Refresh</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="shell">
+      <span>Digital Bridge v2.0 backend</span>
+      <span>FastAPI + Playwright + EventSource</span>
+    </footer>
+  </div>
+
+  <audio id="tts-audio" preload="auto" style="display:none"></audio>
+  <script src="app.js"></script>
 </body>
 </html>

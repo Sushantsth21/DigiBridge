@@ -51,8 +51,14 @@ def _screenshot_b64(page) -> str:
 def _candidate_urls(portal: str) -> list[str]:
     base = BASE_URL.rstrip("/")
     urls = [
+        f"{base}/",
+        f"{base}/index.html",
         f"{base}/{portal}/",
+        f"{base}/{portal}/index.html",
+        f"{base}/dummy_portal/",
+        f"{base}/dummy_portal/index.html",
         f"{base}/dummy_portal/{portal}/",
+        f"{base}/dummy_portal/{portal}/index.html",
     ]
 
     # Add common local/container alternates.

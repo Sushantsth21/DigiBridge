@@ -1,71 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Digital Bridge Dummy Portals</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DigiBridge Unified Dummy Portal</title>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f4f8fb;
+      --card: #ffffff;
+      --line: #d6e1ea;
+      --text: #1f3142;
+      --muted: #5d7389;
+      --brand: #1660a7;
+      --ok: #1e7f46;
+      --warn: #bf7d1e;
+      --danger: #a43636;
+    }
+
     body {
-      margin: 0;
       font-family: "Segoe UI", Tahoma, sans-serif;
-      background: linear-gradient(135deg, #0e2438, #1d4f77);
-      color: #eef6ff;
+      background: radial-gradient(circle at 20% 0%, #e8f2ff, transparent 32%), var(--bg);
+      color: var(--text);
       min-height: 100vh;
+    }
+
+    .top {
+      background: linear-gradient(90deg, #173f66, #2b6ca5);
+      color: #def0ff;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 14px;
+      font-size: 12px;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 14px auto 26px;
+      padding: 0 12px;
       display: grid;
-      place-items: center;
+      gap: 12px;
     }
 
-    .card {
-      width: min(92vw, 760px);
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 14px;
-      padding: 22px;
-      backdrop-filter: blur(4px);
+    .hero {
+      background: linear-gradient(135deg, #245b8e, #1a84a1);
+      color: #fff;
+      border-radius: 13px;
+      border: 1px solid #2f6f9f;
+      padding: 15px;
+      box-shadow: 0 8px 22px rgba(20, 58, 90, 0.23);
     }
 
-    h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-      letter-spacing: 0.02em;
+    .hero h1 { font-size: 24px; margin-bottom: 4px; }
+    .hero p { color: #e0f4ff; font-size: 13px; }
+
+    .hero .pills {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
-    p {
-      margin: 0 0 16px;
-      color: #d8e9f8;
+    .pill {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.16);
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
     }
 
-    a {
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(18, 42, 60, 0.08);
+      overflow: hidden;
+    }
+
+    .card h2 {
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #2f4f6f;
+      border-bottom: 1px solid #e5edf3;
+      padding: 10px 12px;
+      background: #f8fbff;
+    }
+
+    .body { padding: 12px; }
+
+    .field { margin-bottom: 10px; }
+    .field label {
       display: block;
-      text-decoration: none;
-      background: #f1b947;
-      color: #1f2a34;
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-weight: 700;
-      text-align: center;
+      font-size: 12px;
+      margin-bottom: 4px;
+      color: #3d5f7f;
+      font-weight: 600;
     }
 
-    a:hover {
-      background: #ffd88f;
+    .field input {
+      width: 100%;
+      border: 1px solid #c4d5e3;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      color: #193149;
+      background: #fff;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #login-btn { background: #edf5ff; border-color: #afcae4; color: #2f5f8b; }
+    #submit-btn { background: #1b8457; border-color: #12613e; color: #fff; }
+    #refill-btn { background: #9a2f2f; border-color: #702020; color: #fff; }
+    #pay-btn { background: #c58d1e; border-color: #8e640f; color: #2e250f; }
+
+    button:hover { filter: brightness(1.03); }
+
+    .hint { font-size: 11px; color: var(--muted); line-height: 1.45; }
+
+    .status {
+      border: 1px dashed #bdd0e1;
+      border-radius: 9px;
+      background: #f8fcff;
+      padding: 8px;
+      font-size: 12px;
+      color: #2d4f70;
+      margin-bottom: 10px;
+    }
+
+    .status strong { color: #1e4162; }
+
+    .feed {
+      background: #101b28;
+      color: #cfe8ff;
+      border-radius: 10px;
+      border: 1px solid #25384d;
+      min-height: 180px;
+      max-height: 260px;
+      overflow: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      padding: 8px;
+    }
+
+    .feed-line { margin-bottom: 6px; }
+    .feed-line.ok { color: #92f1b8; }
+    .feed-line.warn { color: #ffd18f; }
+
+    .tools {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .link-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .link-row a {
+      color: #205f95;
+      text-decoration: none;
+      font-size: 12px;
+      border: 1px solid #c7d8e8;
+      border-radius: 999px;
+      padding: 4px 9px;
+      background: #f2f8ff;
+    }
+
+    .link-row a:hover { background: #e8f3ff; }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <main class="card">
-    <h1>Dummy Portal Gateway</h1>
-    <p>Use these links to open the realistic demo portals.</p>
-    <div class="grid">
-      <a href="/hospital/">Hospital Portal</a>
-      <a href="/pharmacy/">Pharmacy Portal</a>
-      <a href="/utility/">Utility Portal</a>
-    </div>
+  <div class="top">
+    <span>DigiBridge Unified Dummy Portal</span>
+    <span id="session-status">Login: Not completed</span>
+  </div>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Single Portal, Multiple Functions</h1>
+      <p>One demo website supports hospital booking, pharmacy refill, and utility bill payments.</p>
+      <div class="pills">
+        <span class="pill">Hospital: #doctor-input #date-input #submit-btn</span>
+        <span class="pill">Pharmacy: #medication-input #quantity-input #refill-btn</span>
+        <span class="pill">Utility: #amount-input #pay-btn</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Hospital Scheduling</h2>
+        <div class="body">
+          <div class="status"><strong>Login Gate:</strong> click <code>#login-btn</code> first for hospital requests.</div>
+          <div class="field"><label>Doctor</label><input id="doctor-input" type="text" placeholder="e.g. smith" /></div>
+          <div class="field"><label>Preferred Date</label><input id="date-input" type="date" /></div>
+          <div class="actions">
+            <button id="login-btn" onclick="unifiedPortal.login()">Sign In</button>
+            <button id="submit-btn" onclick="unifiedPortal.submitHospital()">Submit Request</button>
+          </div>
+          <p class="hint">Hospital workflow requires doctor + date. It redirects to a shared success page.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Pharmacy Refills</h2>
+        <div class="body">
+          <div class="field"><label>Medication</label><input id="medication-input" type="text" placeholder="e.g. lisinopril" /></div>
+          <div class="field"><label>Days Supply</label><input id="quantity-input" type="number" min="30" max="90" step="30" placeholder="30 / 60 / 90" /></div>
+          <div class="actions">
+            <button id="refill-btn" onclick="unifiedPortal.submitPharmacy()">Submit Refill</button>
+          </div>
+          <p class="hint">Allowed quantities for demo rules: 30, 60, or 90.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Utility Payments</h2>
+        <div class="body">
+          <div class="field"><label>Payment Amount (USD)</label><input id="amount-input" type="number" step="0.01" min="1" max="500" placeholder="142.50" /></div>
+          <div class="row">
+            <div class="field"><label>Account Number</label><input id="account-input" type="text" value="VPU-441-8820" /></div>
+            <div class="field"><label>Billing ZIP</label><input id="zip-input" type="text" value="41001" /></div>
+          </div>
+          <div class="actions">
+            <button id="pay-btn" onclick="unifiedPortal.submitUtility()">Submit Payment</button>
+          </div>
+          <p class="hint">Demo payment limit: max $500 per transaction.</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>Live Automation Feed</h2>
+      <div class="body">
+        <div class="tools">
+          <p class="hint">Events below are streamed from backend <code>/demo-stream</code>.</p>
+          <button onclick="unifiedPortal.clearFeed()">Clear Feed</button>
+        </div>
+        <div class="feed" id="demo-feed"></div>
+        <div class="link-row">
+          <a href="/hospital/">Legacy Hospital Page</a>
+          <a href="/pharmacy/">Legacy Pharmacy Page</a>
+          <a href="/utility/">Legacy Utility Page</a>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <script src="app.js"></script>
 </body>
 </html>

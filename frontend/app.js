@@ -25,12 +25,11 @@ const ttsAudio      = document.getElementById("tts-audio");
 const repeatBtn     = document.getElementById("repeat-btn");
 const sessionDot    = document.getElementById("session-dot");
 const sessionLabel  = document.getElementById("session-label");
-const portalRow     = document.getElementById("portal-row");
 
 // ── State ─────────────────────────────────────
-let selectedPortal = "hospital";
 let sessionId      = _getOrCreateSessionId();
 let isProcessing   = false;
+const FALLBACK_PORTAL = "hospital";
 
 // ── Session ID (Feature #6) ───────────────────
 function _getOrCreateSessionId() {
@@ -61,20 +60,6 @@ async function checkSession() {
     console.warn("Session check failed:", e);
   }
 }
-
-// ── Portal selector (Feature #5) ──────────────
-portalRow.addEventListener("click", (e) => {
-  const btn = e.target.closest(".portal-btn");
-  if (!btn) return;
-  document.querySelectorAll(".portal-btn").forEach(b => {
-    b.classList.remove("active");
-    b.setAttribute("aria-pressed", "false");
-  });
-  btn.classList.add("active");
-  btn.setAttribute("aria-pressed", "true");
-  selectedPortal = btn.dataset.portal;
-  console.log("Portal selected:", selectedPortal);
-});
 
 // ── Speech Recognition ────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -227,7 +212,8 @@ async function processVoice(transcript, forceRepeat = false) {
   const payload = {
     transcript: forceRepeat ? "same as last time" : transcript,
     session_id: sessionId,
-    portal: selectedPortal,
+    // Backend can infer portal from intent; this is only a safe fallback.
+    portal: FALLBACK_PORTAL,
   };
 
   try {
