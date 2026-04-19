@@ -139,7 +139,9 @@ async def push_status(request_id: str, step: str, detail: str = ""):
 async def process_voice(req: VoiceRequest, request: Request):
     # Use the client-supplied ID so the SSE stream keys match
     request_id = request.headers.get("x-request-id") or str(uuid.uuid4())
-    SSE_QUEUES[request_id] = asyncio.Queue()
+    # Register status stream before LLM call
+    if request_id not in SSE_QUEUES:
+        SSE_QUEUES[request_id] = asyncio.Queue()
 
     log.info(f"[{request_id[:8]}] New request | portal={req.portal} | transcript='{req.transcript}'")
 
@@ -148,7 +150,8 @@ async def process_voice(req: VoiceRequest, request: Request):
         await push_status(request_id, "🧠 Understanding your request…")
         intent = extract_intent(req.transcript, portal=req.portal, session_id=req.session_id, session_store=SESSION_STORE)
 
-        if not intent:
+        if not intent or intent.get("intent") == "unknown":
+            await push_status(request_id, "❌ Could not understand intent.")
             return VoiceResponse(
                 success=False,
                 message="I didn't quite catch that. Could you repeat what you'd like to do?",

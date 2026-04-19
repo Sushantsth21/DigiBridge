@@ -42,21 +42,25 @@ def _build_system_prompt(portal: str) -> str:
     actions = ", ".join(schema["actions"])
     example = schema["example"]
 
-    return f"""You are a strict JSON intent extractor for a voice-driven accessibility agent.
+    return f"""
+You are a strict JSON intent extractor for a voice-driven accessibility agent.
 The user is interacting with the "{portal}" portal.
 
 VALID ACTIONS for this portal: {actions}
 
-Your response must be ONLY a valid JSON object — no prose, no markdown, no explanation.
+Return ONLY valid JSON. No markdown, no prose.
+Required schema: {{"intent":"string","confidence":0-1,"entities":{{"key":"value"}}}}
+If unsure, return: {{"intent":"unknown","confidence":0,"entities":{{}}}}
 
 Rules:
 1. Extract the most relevant action from the valid list above.
 2. Normalize dates to ISO format YYYY-MM-DD. Resolve relative dates like "next Tuesday" based on today = 2026-04-18.
-3. If the user says "same as last time" or "again" or "repeat", return {{"repeat_last": true}}.
+3. If the user says "same as last time" or "again" or "repeat", return {{"intent":"repeat_last","confidence":1,"entities":{{}}}}.
 4. If a required field is missing, omit it from the JSON (do NOT hallucinate values).
 5. Lowercase all name/medication values.
 
 Example output: {example}
+Example object: {{"intent": "schedule", "confidence": 0.95, "entities": {{"doctor": "smith", "date": "2026-04-22"}}}}
 """
 
 
@@ -85,13 +89,24 @@ def extract_intent(
 
     if not result:
         log.error("Both LLM calls failed")
-        return None
+        return {"intent": "unknown", "confidence": 0, "entities": {}}
 
     # ── Parse JSON safely ─────────────────────────────────────────
     intent = _safe_json_parse(result)
-    if not intent:
+    if not intent or not isinstance(intent, dict):
         log.error(f"Could not parse LLM response as JSON: {result!r}")
-        return None
+        return {"intent": "unknown", "confidence": 0, "entities": {}}
+
+    # Ensure required keys
+    if not all(k in intent for k in ("intent", "confidence", "entities")):
+        intent = {"intent": intent.get("intent", "unknown"), "confidence": intent.get("confidence", 0), "entities": intent.get("entities", {})}
+        # Fill missing keys with safe defaults
+        if "intent" not in intent:
+            intent["intent"] = "unknown"
+        if "confidence" not in intent:
+            intent["confidence"] = 0
+        if "entities" not in intent:
+            intent["entities"] = {}
 
     log.info(f"Parsed intent: {intent}")
     return intent
@@ -145,16 +160,21 @@ def _call_claude(system_prompt: str, user_message: str) -> str | None:
 
 
 def _safe_json_parse(text: str) -> dict | None:
-    """Strip markdown fences and parse JSON safely."""
+    """Strip markdown fences and parse JSON safely. If invalid, return safe default."""
     cleaned = re.sub(r"```(?:json)?", "", text).replace("```", "").strip()
     try:
-        return json.loads(cleaned)
+        obj = json.loads(cleaned)
+        if isinstance(obj, dict):
+            return obj
     except json.JSONDecodeError:
         # Last-ditch: find first {...} block
         match = re.search(r"\{.*\}", cleaned, re.DOTALL)
         if match:
             try:
-                return json.loads(match.group())
+                obj = json.loads(match.group())
+                if isinstance(obj, dict):
+                    return obj
             except json.JSONDecodeError:
                 pass
-    return None
+    # If response is {} or invalid JSON, map to safe default
+    return {"intent": "unknown", "confidence": 0, "entities": {}}
