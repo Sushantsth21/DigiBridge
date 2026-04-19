@@ -303,7 +303,12 @@ async def status_stream(request_id: str):
     return StreamingResponse(
         sse_generator(request_id),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Access-Control-Allow-Origin": "*",
+            "Connection": "keep-alive",
+        },
     )
 
 
@@ -323,7 +328,12 @@ async def demo_stream():
     return StreamingResponse(
         stream(),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Access-Control-Allow-Origin": "*",
+            "Connection": "keep-alive",
+        },
     )
 
 
