@@ -1,5 +1,6 @@
 (() => {
-  const STREAM_URL = `${window.location.protocol}//${window.location.hostname}:8000/demo-stream`;
+  const IS_LOCAL_HOST = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const STREAM_URL = `${window.location.protocol}//${window.location.hostname}${IS_LOCAL_HOST ? ":8000" : ""}/demo-stream`;
   const LOGIN_KEY = "db_unified_portal_logged_in";
 
   const qs = (id) => document.getElementById(id);

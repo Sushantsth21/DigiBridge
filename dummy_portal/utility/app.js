@@ -1,5 +1,6 @@
 (() => {
-  const DEMO_STREAM_URL = `${window.location.protocol}//${window.location.hostname}:8000/demo-stream`;
+  const IS_LOCAL_HOST = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const DEMO_STREAM_URL = `${window.location.protocol}//${window.location.hostname}${IS_LOCAL_HOST ? ":8000" : ""}/demo-stream`;
 
   const CURRENCY = new Intl.NumberFormat("en-US", {
     style: "currency",
