@@ -16,6 +16,8 @@ The app also supports:
 - Session memory (repeat previous action)
 - Screenshot confirmation for completed actions
 - Optional ElevenLabs voice response playback
+- Lightweight RAG grounding for intent extraction prompts
+- Safety guardrails (prompt-injection filter + high-value payment block in demo mode)
 
 The dummy environment now ships as a unified multi-function portal (single site) that supports all three workflows.
 
@@ -115,6 +117,23 @@ Validation response includes:
 - `GET /automation/validate/{portal}`: selector/URL profile validation
 - `GET /health`: service health check
 
+### Optional trace mode (for report/demo)
+
+You can ask the backend to return AI workflow internals (retrieved context, prompt, provider, raw model output, and safety decision) by setting `"trace": true` in the request body:
+
+```bash
+curl -X POST http://localhost:8000/process-voice \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transcript":"pay my electricity bill of 120 dollars",
+    "session_id":"demo-session",
+    "portal":"hospital",
+    "trace": true
+  }'
+```
+
+Even when `portal` is set to `hospital` above, the model may still infer and reroute to `utility` based on intent.
+
 ## Project Structure
 
 ```text
@@ -123,6 +142,8 @@ backend/
   intent_parser.py
   llm_parser.py
   main.py
+  retrieval.py
+  safety_guard.py
   portal_sites.example.json
   portal_sites.json
 frontend/
@@ -134,6 +155,8 @@ dummy_portal/
   utility/
 Dockerfile
 docker-compose.yml
+docs/
+  PROJECT_REPORT.md
 ```
 
 ## Notes and Limitations

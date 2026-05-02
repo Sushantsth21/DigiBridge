@@ -17,9 +17,11 @@ from pydantic import BaseModel
 try:
     from .automation import run_automation, PORTAL_REGISTRY, validate_portal_profile
     from .llm_parser import extract_intent
+    from .safety_guard import evaluate_request_safety
 except ImportError:
     from automation import run_automation, PORTAL_REGISTRY, validate_portal_profile
     from llm_parser import extract_intent
+    from safety_guard import evaluate_request_safety
 
 # ──────────────────────────────────────────────
 # Logging
@@ -73,6 +75,7 @@ class VoiceRequest(BaseModel):
     transcript: str
     session_id: str = "default"
     portal: str = "hospital"          # Feature #5: caller picks portal
+    trace: bool = False
 
 
 class VoiceResponse(BaseModel):
@@ -82,6 +85,7 @@ class VoiceResponse(BaseModel):
     audio_b64: str | None = None
     intent: dict | None = None
     session_id: str | None = None
+    ai_trace: dict | None = None
 
 
 # ──────────────────────────────────────────────
@@ -191,18 +195,35 @@ async def process_voice(req: VoiceRequest, request: Request):
         SSE_QUEUES[request_id] = asyncio.Queue()
 
     log.info(f"[{request_id[:8]}] New request | portal={req.portal} | transcript='{req.transcript}'")
+    ai_trace: dict = {}
 
     try:
         # ── Step 1: Parse intent ──────────────────────────────────
         await push_status(request_id, "🧠 Understanding your request…")
         await push_demo_event(req.portal, "🧠 Understanding your request…", request_id=request_id)
-        intent = extract_intent(req.transcript, portal=req.portal, session_id=req.session_id, session_store=SESSION_STORE)
+        if req.trace:
+            intent, intent_trace = extract_intent(
+                req.transcript,
+                portal=req.portal,
+                session_id=req.session_id,
+                session_store=SESSION_STORE,
+                include_trace=True,
+            )
+            ai_trace["intent"] = intent_trace
+        else:
+            intent = extract_intent(
+                req.transcript,
+                portal=req.portal,
+                session_id=req.session_id,
+                session_store=SESSION_STORE,
+            )
 
         if not intent or intent.get("intent") == "unknown":
             await push_status(request_id, "❌ Could not understand intent.")
             return VoiceResponse(
                 success=False,
                 message="I didn't quite catch that. Could you repeat what you'd like to do?",
+                ai_trace=ai_trace if req.trace else None,
             )
 
         log.info(f"[{request_id[:8]}] Intent extracted: {intent}")
@@ -224,7 +245,22 @@ async def process_voice(req: VoiceRequest, request: Request):
                 return VoiceResponse(
                     success=False,
                     message="I don't have a previous request in this session yet.",
+                    ai_trace=ai_trace if req.trace else None,
                 )
+
+        safety = evaluate_request_safety(req.transcript, intent, effective_portal)
+        if req.trace:
+            ai_trace["safety"] = safety
+        if not safety["allowed"]:
+            await push_status(request_id, "🛡️ Safety guard blocked request.")
+            await SSE_QUEUES[request_id].put({"type": "done", "request_id": request_id})
+            return VoiceResponse(
+                success=False,
+                message=safety["message"],
+                intent=intent,
+                session_id=req.session_id,
+                ai_trace=ai_trace if req.trace else None,
+            )
 
         # ── Step 2: Automation ────────────────────────────────────
         await push_status(request_id, "🌐 Starting browser automation…", f"Portal: {effective_portal}")
@@ -282,6 +318,7 @@ async def process_voice(req: VoiceRequest, request: Request):
             audio_b64=audio_b64,
             intent=intent,
             session_id=req.session_id,
+            ai_trace=ai_trace if req.trace else None,
         )
 
     except Exception as e:
@@ -290,6 +327,7 @@ async def process_voice(req: VoiceRequest, request: Request):
         return VoiceResponse(
             success=False,
             message="Something went wrong on my end. Please try again.",
+            ai_trace=ai_trace if req.trace else None,
         )
     finally:
         SSE_QUEUES.pop(request_id, None)

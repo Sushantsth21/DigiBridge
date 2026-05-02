@@ -138,7 +138,7 @@ function resetMic() {
 
 // ── Repeat last action (Feature #6) ───────────
 repeatBtn.addEventListener("click", () => {
-  processVoice("same as last time", forceRepeat = true);
+  processVoice("same as last time", true);
 });
 
 // ── Live Status Ticker (Feature #2) ───────────
